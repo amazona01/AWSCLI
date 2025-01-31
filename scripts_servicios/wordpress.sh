@@ -1,10 +1,17 @@
 #!/bin/bash
 
 # Actualizar el sistema
+<<<<<<< HEAD
+sudo rm -rf /var/lib/apt/lists/*
+sudo apt-get update
+# Instalar las dependencias de WordPress
+sudo DEBIAN_FRONTEND=noninteractive apt install -y apache2 curl git unzip ghostscript libapache2-mod-php mysql-server php php-bcmath php-curl php-imagick php-intl php-json php-mbstring php-mysql php-xml
+=======
 sudo apt update -y
 
 # Instalar las dependencias de WordPress
 sudo apt install -y apache2 ghostscript libapache2-mod-php mysql-server php php-bcmath php-curl php-imagick php-intl php-json php-mbstring php-mysql php-xm>
+>>>>>>> parent of 6e437fa (creacion del laboratorio)
 
 # Crear directorio para WordPress
 sudo mkdir -p /srv/www
@@ -62,10 +69,13 @@ sudo chmod -R 755 /srv/www/wordpress
 # Reiniciar Apache para aplicar cambios
 sudo systemctl restart apache2
 
+<<<<<<< HEAD
+=======
 # Verificar que MySQL y Apache estén activos
 sudo systemctl status mysql
 sudo systemctl status apache2
 
+>>>>>>> parent of 6e437fa (creacion del laboratorio)
 echo "La instalación de WordPress se ha completado. Accede a tu sitio en http://<tu_dominio_o_IP> para completar la configuración."
 
 

@@ -26,7 +26,7 @@
 server {
         listen 192.168.73.174:81 default_server;
         #listen [::]:80 default_server;
-        server_name urlwordpress.local;
+        server_name nginxequipo45.duckdns.org;
         # SSL configuration
         #
          #listen 192.168.73.174:443 ssl default_server;

@@ -25,9 +25,13 @@ upstream openfire{
 server {
     listen 192.168.73.174:80 default_server;
     #listen [::]:80 default_server
-    server_name urlwordpress.local;
+    server_name nginxequipo45.duckdns.org;
     # return 301 http://urlwordpress.local:81$request_uri;
+<<<<<<< HEAD
+    rewrite nginxequipo45.duckdns.org$ http://nginxequipo45.duckdns.org:81/ permanent;
+=======
     rewrite urlwordpress.local$ http://urlwordpress.local:81/ permanent;
+>>>>>>> parent of 6e437fa (creacion del laboratorio)
     #redirect permanent urlwordpress.local nginx:81
     # SSL configuration
     #
@@ -55,8 +59,8 @@ server {
         # First attempt to serve request as file, then
         # as directory, then fall back to displaying a 404.
         #try_files $uri $uri/ =404
-        if ($host = "urlwordpress.local") {
-            rewrite ^(.*)$ http://urlwordpress.local:81$1 permanent;
+        if ($host = "nginxequipo45.duckdns.org") {
+            rewrite ^(.*)$ http://nginxequipo45.duckdns.org:81$1 permanent;
         }
         proxy_pass http://openfire/;
     }
