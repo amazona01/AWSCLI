@@ -20,18 +20,14 @@
 
 upstream openfire{
     #server 192.168.31.248;
-    server 192.168.31.183;
+    server 10.0.2.100;
 }
 server {
-    listen 192.168.73.174:80 default_server;
+    listen 0.0.0.0:80 default_server;
     #listen [::]:80 default_server
     server_name nginxequipo45.duckdns.org;
     # return 301 http://urlwordpress.local:81$request_uri;
-<<<<<<< HEAD
     rewrite nginxequipo45.duckdns.org$ http://nginxequipo45.duckdns.org:81/ permanent;
-=======
-    rewrite urlwordpress.local$ http://urlwordpress.local:81/ permanent;
->>>>>>> parent of 6e437fa (creacion del laboratorio)
     #redirect permanent urlwordpress.local nginx:81
     # SSL configuration
     #

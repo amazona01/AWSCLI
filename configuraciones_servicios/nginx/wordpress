@@ -19,18 +19,18 @@
 #
 
         upstream wordpress{
-                server 192.168.31.248;
+                server 10.0.3.100;
                 #server ipwordpress 2;
 }
 
 server {
-        listen 192.168.73.174:81 default_server;
+        listen 0.0.0.0:81 default_server;
         #listen [::]:80 default_server;
         server_name nginxequipo45.duckdns.org;
         # SSL configuration
         #
-         #listen 192.168.73.174:443 ssl default_server;
-         #listen [::]:443 ssl default_server;
+        #listen 192.168.73.174:443 ssl default_server;
+        #listen [::]:443 ssl default_server;
         #
         # Note: You should disable gzip for SSL traffFic.
         # See: https://bugs.debian.org/773332

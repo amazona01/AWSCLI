@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #!/bin/bash
 #preparar dns dinamico
 # crear directorio
@@ -15,14 +14,8 @@ chmod 700 "/home/ubuntu/duckdns/duck2.sh"
 # Añadir al crontab
 (crontab -l 2>/dev/null; echo "*/1 * * * * /home/ubuntu/duckdns/duck.sh >/dev/null 2>&1") | crontab -
 (crontab -l 2>/dev/null; echo "*/1 * * * * /home/ubuntu/duckdns/duck2.sh >/dev/null 2>&1") | crontab -
-
-=======
->>>>>>> parent of 6e437fa (creacion del laboratorio)
 #Instalación de Nginx
-sudo apt update && sudo apt install nginx -y
-#Configuración firewall
-sudo ufw allow 'Nginx HTTP'
-
+sudo apt update && sudo  DEBIAN_FRONTEND=noninteractive apt install nginx -y
 #clonar git
 sudo git clone https://github.com/amazona01/AWSCLI.git
 
@@ -34,7 +27,7 @@ sudo mv AWSCLI/configuraciones_servicios/nginx/default /etc/nginx/sites-availabl
 sudo ln -s /etc/nginx/sites-available/wordpress /etc/nginx/sites-enabled/
 sudo ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
 
-#Restart Nginx 
+#Restart Nginx
 sudo systemctl restart nginx
 
 #Borrar
