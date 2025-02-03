@@ -57,11 +57,11 @@ Para más información, contacta con los administradores del repositorio o consu
         <th>Julio</th>
     </tr>
     <tr>
-        <td><img src="https://github.com/amazona01/AWSCLI/blob/main/recursos/alejandro.gif" width="100" height="100" /></td>
+        <td><img src="https://github.com/amazona01/AWSCLI/blob/main/recursos/alejandro.webp" width="100" height="100" /></td>
         <td><img src="https://github.com/amazona01/AWSCLI/blob/main/recursos/jose.webp" width="100" height="100" /></td>
-        <td><img src="https://github.com/amazona01/AWSCLI/blob/main/recursos/" width="100" height="100" /></td>
-        <td><img src="https://github.com/amazona01/AWSCLI/blob/main/recursos/" width="100" height="100" /></td>
-        <td><img src="https://github.com/amazona01/AWSCLI/blob/main/recursos/" width="100" height="100" /></td>
+        <td><img src="https://github.com/amazona01/AWSCLI/blob/main/recursos/adrian.webp" width="100" height="100" /></td>
+        <td><img src="https://github.com/amazona01/AWSCLI/blob/main/recursos/diego.webp" width="100" height="100" /></td>
+        <td><img src="https://github.com/amazona01/AWSCLI/blob/main/recursos/julio.webp" width="100" height="100" /></td>
     </tr>
 </table>
 ---
