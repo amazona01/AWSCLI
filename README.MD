@@ -1,4 +1,6 @@
-# :shipit: MensAGL Equipo4(5) :shipit:  ![Screenshot](recursos/logo.png)
+# :shipit: MensAGL Equipo4(5) :shipit: 
+ <img src="recursos/logo.png" alt="Logo" width="80" height="80">
+
 
 #  💀 Reto ASIR2 2024-25 - Mensagl 💀 
 
