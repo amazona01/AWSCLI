@@ -49,13 +49,19 @@ Para más información, contacta con los administradores del repositorio o consu
 
 ## Integrantes
 Alejandro
-![Alejandro](https://github.com/amazona01/AWSCLI/blob/main/recursos/alejandro.gif)
+<br>
+<img src="https://github.com/amazona01/AWSCLI/blob/main/recursos/alejandro.gif" width="40" height="40" />
+
+<br>
 Jose antonio
 
+<br>
 Adrián
 
+<br>
 Diego
 
+<br>
 Julio
 
 ---
