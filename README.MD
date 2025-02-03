@@ -58,10 +58,10 @@ Para más información, contacta con los administradores del repositorio o consu
     </tr>
     <tr>
         <td><img src="https://github.com/amazona01/AWSCLI/blob/main/recursos/alejandro.gif" width="100" height="100" /></td>
-        <td><img src="image-url-for-jose-antonio" width="100" height="100" /></td>
-        <td><img src="image-url-for-adrian" width="100" height="100" /></td>
-        <td><img src="image-url-for-diego" width="100" height="100" /></td>
-        <td><img src="image-url-for-julio" width="100" height="100" /></td>
+        <td><img src="https://github.com/amazona01/AWSCLI/blob/main/recursos/jose.webp" width="100" height="100" /></td>
+        <td><img src="https://github.com/amazona01/AWSCLI/blob/main/recursos/" width="100" height="100" /></td>
+        <td><img src="https://github.com/amazona01/AWSCLI/blob/main/recursos/" width="100" height="100" /></td>
+        <td><img src="https://github.com/amazona01/AWSCLI/blob/main/recursos/" width="100" height="100" /></td>
     </tr>
 </table>
 ---
