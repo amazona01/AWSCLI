@@ -1,4 +1,4 @@
-# MensAGL Equipo4(5) ![Screenshot](recursos/logo.png)
+# :shipit: MensAGL Equipo4(5) :shipit:  ![Screenshot](recursos/logo.png)
 
 # :memo: Reto ASIR2 2024-25 - Mensagl :memo:
 
@@ -6,26 +6,26 @@
 El reto Mensagl tiene como objetivo la implementación de un servicio de mensajería instantánea y comunicaciones unificadas, alojado en la nube de AWS. Además, se integrará un sistema de ticketing para la gestión de usuarios y soporte técnico mediante un plugin de wordpress.
 
 ## :sparkles: Objetivos :sparkles:
-- Analizar tecnologías de comunicaciones unificadas y mensajería instantánea.
+- Analizar tecnologías de comunicaciones unificadas y mensajería instantánea. 
 - Comparar diferentes soluciones de código abierto.
 - Implementar una infraestructura basada en AWS.
 - Configurar un sistema de ticketing para la gestión de usuarios.
 - Documentar y presentar el proyecto final.
 
 ## :rocket: Tecnologías Utilizadas :rocket:
-- **Cloud Computing**: Amazon Web Services (AWS). :white_check_mark:
-- **Protocolos de Mensajería**: XMPP y TURN. :white_check_mark:
-- **Bases de Datos**: MySQL. :white_check_mark:
-- **Seguridad**: TLS, cortafuegos, backups mediante rsync. :white_check_mark:
-- **Automatización**: Terraform, AWS CLI, scripts en Bash. :white_check_mark:
+- **Cloud Computing**: Amazon Web Services (AWS). ✅
+- **Protocolos de Mensajería**: XMPP y TURN. ✅
+- **Bases de Datos**: MySQL. ✅
+- **Seguridad**: TLS, cortafuegos, backups mediante rsync. ✅
+- **Automatización**: Terraform, AWS CLI, scripts en Bash. ✅
 
-## Arquitectura
-![Screenshot](recursos/red.png) :construction:
-- **Red en la nube (AWS)** VPC. 
-- **Servidores de Mensajería y Ticketing** en diferentes subredes. :lock:
-- **Proxy Inverso** para el balanceo de carga gestion de certificados y dominios.
-- **Gestión de Usuarios** mediante un sistema de ticketing.
-- **Federación** entre servidores de equipos.
+## 🚧 Arquitectura 🚧
+![Screenshot](recursos/red.png) 
+- **Red en la nube (AWS)** VPC. ☁️
+- **Servidores de Mensajería y Ticketing** en diferentes subredes. 🔒️
+- **Proxy Inverso** para el balanceo de carga gestion de certificados y dominios. 🔐
+- **Gestión de Usuarios** mediante un sistema de ticketing. 🏷️
+- **Federación** entre servidores de equipos. 📱
 
 ## Instalación y Despliegue
 1. Clonar el repositorio:  
@@ -38,9 +38,9 @@ El reto Mensagl tiene como objetivo la implementación de un servicio de mensaje
 4. Configurar Terraform e iniciar la infraestructura.
 5. Comprobar conectividad y funcionalidad.
 
-## Contacto
+## 📮 Contacto 📮
 Para más información, contacta con los administradores del repositorio o consulta la documentación en el repositorio.
 
 ---
-Proyecto desarrollado por estudiantes de ASIR2, curso 2024-25.
+👷Proyecto desarrollado por estudiantes de ASIR2, curso 2024-25 👷. 
 
