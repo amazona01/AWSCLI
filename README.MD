@@ -48,22 +48,22 @@ El reto Mensagl tiene como objetivo la implementación de un servicio de mensaje
 Para más información, contacta con los administradores del repositorio o consulta la documentación en el repositorio.
 
 ## Integrantes
-Alejandro
-<br>
-<img src="https://github.com/amazona01/AWSCLI/blob/main/recursos/alejandro.gif" width="200" height="200" />
-
-<br>
-Jose antonio
-
-<br>
-Adrián
-
-<br>
-Diego
-
-<br>
-Julio
-
+<table border="1">
+    <tr>
+        <th>Alejandro</th>
+        <th>Jose Antonio</th>
+        <th>Adrián</th>
+        <th>Diego</th>
+        <th>Julio</th>
+    </tr>
+    <tr>
+        <td><img src="https://github.com/amazona01/AWSCLI/blob/main/recursos/alejandro.gif" width="100" height="100" /></td>
+        <td><img src="image-url-for-jose-antonio" width="100" height="100" /></td>
+        <td><img src="image-url-for-adrian" width="100" height="100" /></td>
+        <td><img src="image-url-for-diego" width="100" height="100" /></td>
+        <td><img src="image-url-for-julio" width="100" height="100" /></td>
+    </tr>
+</table>
 ---
 👷Proyecto desarrollado por estudiantes de ASIR2, curso 2024-25 👷. 
 
