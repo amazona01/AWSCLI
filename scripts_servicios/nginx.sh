@@ -1,7 +1,7 @@
 #!/bin/bash
 #preparar dns dinamico
 # crear directorio
-mkdir -p "$/home/ubuntu/duckdns/"
+mkdir -p "/home/ubuntu/duckdns/"
 cd "/home/ubuntu/duckdns/"
 
 # Crear script para actualizar la ip dinamicamente

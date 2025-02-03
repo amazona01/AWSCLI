@@ -528,25 +528,6 @@ resource "aws_instance" "Wordpress" {
       "sudo ./wordpress.sh"
     ]
   }
-  provisioner "remote-exec" {
-  connection {
-    type        = "ssh"
-    user        = "ubuntu"
-    private_key = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
-    host        = self.private_ip
-    bastion_host        = aws_instance.nginx.public_ip
-    bastion_user        = "ubuntu"
-    bastion_private_key = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
-  }
-
-  inline = [
-    "sudo -u www-data wp-cli core download --path=/var/www/html",
-    "sudo -u www-data wp-cli core config --dbname=wordpress --dbuser=wordpress --dbpass=_Admin123 --dbhost=${aws_db_instance.MySQL_Wordpress.endpoint} --dbprefix=wp --path=/var/www/html",
-    "sudo -u www-data wp-cli core install --url='http://nginxequipo45.duckdns.org' --title='Wordpress equipo 4' --admin_user='admin' --admin_password='_Admin123' --admin_email='admin@example.com' --path=/var/www/html",
-    "sudo -u www-data wp-cli plugin install supportcandy --activate --path='/var/www/html'"
-  ]
-}
-
   tags = {
     Name = "WORDPRESS"
   }
@@ -558,21 +539,6 @@ resource "aws_instance" "Wordpress" {
     aws_key_pair.ssh_key,
     aws_db_instance.MySQL_Wordpress
   ]
-}
-
-resource "aws_db_instance" "MySQL_Wordpress" {
-  identifier             = "mysql-wordpress"
-  allocated_storage      = 10
-  storage_type          = "gp2"
-  engine                = "mysql"
-  engine_version        = "8.0"
-  instance_class        = "db.t3.micro"
-  username              = "wordpress"
-  password              = "_Admin123"
-  parameter_group_name  = "default.mysql8.0"
-  publicly_accessible   = false
-  skip_final_snapshot   = true
-  vpc_security_group_ids = [aws_security_group.MySQL_sg.id]
 }
 
 
