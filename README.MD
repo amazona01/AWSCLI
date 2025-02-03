@@ -1,8 +1,8 @@
 # :shipit: MensAGL Equipo4(5) :shipit: 
- <img src="recursos/logo.png" alt="Logo" width="80" height="80">
-
-
-#  💀 Reto ASIR2 2024-25 - Mensagl 💀 
+<a href="https://github.com/amazona01/AWSCLI">
+    <img src="recursos/logo.png" alt="Logo" width="80" height="80">
+</a>
+  <h3 align="center">💀 Reto ASIR2 2024-25 - Mensagl 💀</h3>
 
 ## :memo: Descripción :memo:
 El reto Mensagl tiene como objetivo la implementación de un servicio de mensajería instantánea y comunicaciones unificadas, alojado en la nube de AWS. Además, se integrará un sistema de ticketing para la gestión de usuarios y soporte técnico mediante un plugin de wordpress.
