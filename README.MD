@@ -1,8 +1,8 @@
 # :shipit: MensAGL Equipo4(5) :shipit:  ![Screenshot](recursos/logo.png)
 
-# :memo: Reto ASIR2 2024-25 - Mensagl :memo:
+#  💀 Reto ASIR2 2024-25 - Mensagl 💀 
 
-## Descripción
+## :memo: Descripción :memo:
 El reto Mensagl tiene como objetivo la implementación de un servicio de mensajería instantánea y comunicaciones unificadas, alojado en la nube de AWS. Además, se integrará un sistema de ticketing para la gestión de usuarios y soporte técnico mediante un plugin de wordpress.
 
 ## :sparkles: Objetivos :sparkles:
@@ -27,7 +27,7 @@ El reto Mensagl tiene como objetivo la implementación de un servicio de mensaje
 - **Gestión de Usuarios** mediante un sistema de ticketing. 🏷️
 - **Federación** entre servidores de equipos. 📱
 
-## Instalación y Despliegue
+## :trollface: Instalación y Despliegue :trollface:
 1. Clonar el repositorio:  
    ```bash
    git clone https://github.com/amazona01/AWSCLI
