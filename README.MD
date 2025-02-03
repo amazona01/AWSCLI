@@ -50,7 +50,7 @@ Para más información, contacta con los administradores del repositorio o consu
 ## Integrantes
 Alejandro
 <br>
-<img src="https://github.com/amazona01/AWSCLI/blob/main/recursos/alejandro.gif" width="40" height="40" />
+<img src="https://github.com/amazona01/AWSCLI/blob/main/recursos/alejandro.gif" width="200" height="200" />
 
 <br>
 Jose antonio
