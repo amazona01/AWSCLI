@@ -5,6 +5,7 @@
 </a>
   <h3 align="center">💀 Reto ASIR2 2024-25 - Mensagl 💀</h3>
 </div>
+
 ## :memo: Descripción :memo:
 El reto Mensagl tiene como objetivo la implementación de un servicio de mensajería instantánea y comunicaciones unificadas, alojado en la nube de AWS. Además, se integrará un sistema de ticketing para la gestión de usuarios y soporte técnico mediante un plugin de wordpress.
 
