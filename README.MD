@@ -49,7 +49,7 @@ Para más información, contacta con los administradores del repositorio o consu
 
 ## Integrantes
 Alejandro
-<img src="recrusos/alejandro.gif" width="50" height="50" />
+![Alejandro](https://github.com/amazona01/master/recursos/alejandro.gif)
 Jose antonio
 
 Adrián
