@@ -1,27 +1,28 @@
 # MensAGL Equipo4(5) ![Screenshot](recursos/logo.png)
 
-# Reto ASIR2 2024-25 - Mensagl
+# :memo: Reto ASIR2 2024-25 - Mensagl :memo:
 
 ## Descripción
 El reto Mensagl tiene como objetivo la implementación de un servicio de mensajería instantánea y comunicaciones unificadas, alojado en la nube de AWS. Además, se integrará un sistema de ticketing para la gestión de usuarios y soporte técnico mediante un plugin de wordpress.
 
-## Objetivos
+## :sparkles: Objetivos :sparkles:
 - Analizar tecnologías de comunicaciones unificadas y mensajería instantánea.
 - Comparar diferentes soluciones de código abierto.
 - Implementar una infraestructura basada en AWS.
 - Configurar un sistema de ticketing para la gestión de usuarios.
 - Documentar y presentar el proyecto final.
 
-## Tecnologías Utilizadas
-- **Cloud Computing**: Amazon Web Services (AWS).
-- **Protocolos de Mensajería**: XMPP y TURN.
-- **Bases de Datos**: MySQL.
-- **Seguridad**: TLS, cortafuegos, backups mediante rsync.
-- **Automatización**: Terraform, AWS CLI, scripts en Bash.
+## :rocket: Tecnologías Utilizadas :rocket:
+- **Cloud Computing**: Amazon Web Services (AWS). :white_check_mark:
+- **Protocolos de Mensajería**: XMPP y TURN. :white_check_mark:
+- **Bases de Datos**: MySQL. :white_check_mark:
+- **Seguridad**: TLS, cortafuegos, backups mediante rsync. :white_check_mark:
+- **Automatización**: Terraform, AWS CLI, scripts en Bash. :white_check_mark:
 
 ## Arquitectura
-- **Red en la nube (AWS)** VPC.
-- **Servidores de Mensajería y Ticketing** en diferentes subredes.
+![Screenshot](recursos/red.png) :construction:
+- **Red en la nube (AWS)** VPC. 
+- **Servidores de Mensajería y Ticketing** en diferentes subredes. :lock:
 - **Proxy Inverso** para el balanceo de carga gestion de certificados y dominios.
 - **Gestión de Usuarios** mediante un sistema de ticketing.
 - **Federación** entre servidores de equipos.
