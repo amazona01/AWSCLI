@@ -575,6 +575,59 @@ resource "aws_db_instance" "MySQL_Wordpress" {
   vpc_security_group_ids = [aws_security_group.MySQL_sg.id]
 }
 
+#APARTADO RDS
+# Grupo de subredes para RDS 
+resource "aws_db_subnet_group" "cms_subnet_group" {
+  name       = "cms-db-subnet-group"
+  subnet_ids = [aws_subnet.private1.id, aws_subnet.private2.id]  # Subnets en 2 AZs
+  tags = {
+    Name = "cms-db-subnet-group"
+  }
+}
+# Instancia RDS - para CMS
+resource "aws_db_instance" "cms_database" {
+  allocated_storage    = 20
+  storage_type         = "gp2"
+  instance_class       = "db.t3.medium"
+  engine               = "mysql"
+  engine_version       = "8.0"
+  username             = "wordpress"
+  password             = "_Admin123"
+  db_name              = "wordpress_db"
+  publicly_accessible  = false
+  multi_az             = false
+  availability_zone    = "us-east-1b"  
+  db_subnet_group_name = aws_db_subnet_group.cms_subnet_group.name
+  vpc_security_group_ids = [aws_security_group.sg_mysql.id]
+  skip_final_snapshot  = true  # PRUEBAS LUEGO ELIMINAR
+  tags = {
+    Name = "wordpress_db"
+  }
+  # identificador a la instancia de la base de datos
+  identifier = "cms-database" 
+  depends_on = [aws_db_subnet_group.cms_subnet_group]
+}
+# Cluster de CMS (2 instancias en Zona 2)
+#resource "aws_instance" "cms_cluster_1" {
+#  ami                    = "ami-04b4f1a9cf54c11d0"
+#  instance_type          = "t2.micro"
+#  subnet_id              = aws_subnet.private2.id
+#  key_name               = aws_key_pair.ssh_key.key_name
+#  vpc_security_group_ids = [aws_security_group.sg_cms.id]
+#  private_ip             = "10.0.4.10"  # IP privada fija
+  # User Data para cargar el script.sh (comentado de momento)
+  # user_data = file("script.sh")
+#  tags = {
+#    Name = "cms-cluster-1"
+#   }
+#   depends_on = [
+#     aws_vpc.main,
+#     aws_subnet.private2,
+#     aws_security_group.sg_cms,
+#     aws_key_pair.ssh_key
+#   ]
+# }
+
 
 resource "aws_instance" "XMPP-openfire" {
   ami                    = "ami-053b0d53c279acc90"  # Ubuntu Server 22.04 LTS en us-east-1

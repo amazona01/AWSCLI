@@ -47,6 +47,17 @@ El reto Mensagl tiene como objetivo la implementación de un servicio de mensaje
 ## 📮 Contacto 📮
 Para más información, contacta con los administradores del repositorio o consulta la documentación en el repositorio.
 
+## Integrantes
+Alejandro
+<img src="recrusos/alejandro.gif" width="50" height="50" />
+Jose antonio
+
+Adrián
+
+Diego
+
+Julio
+
 ---
 👷Proyecto desarrollado por estudiantes de ASIR2, curso 2024-25 👷. 
 
