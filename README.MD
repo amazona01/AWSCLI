@@ -1,6 +1,6 @@
 # :shipit: MensAGL Equipo4(5) :shipit: 
 <a href="https://github.com/amazona01/AWSCLI">
-    <img src="recursos/logo.png" alt="Logo" width="80" height="80">
+    <img  align="center" src="recursos/logo.png" alt="Logo" width="80" height="80">
 </a>
   <h3 align="center">💀 Reto ASIR2 2024-25 - Mensagl 💀</h3>
 
