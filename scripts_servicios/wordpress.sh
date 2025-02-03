@@ -30,14 +30,14 @@ sudo chown -R www-data:www-data /var/www/html
 
 
 # Descargar y configurar WordPress
-sudo -u www-data wp-cli core download --path=/var/www/html
+#sudo -u www-data wp-cli core download --path=/var/www/html
 
-sudo -u www-data wp-cli core config --dbname=wordpress --dbuser=wordpress --dbpass=_Admin123 --dbhost=127.0.0.1 --dbprefix=wp --path=/var/www/html
+#sudo -u www-data wp-cli core config --dbname=wordpress --dbuser=wordpress --dbpass=_Admin123 --dbhost=127.0.0.1 --dbprefix=wp --path=/var/www/html
 
-sudo -u www-data wp-cli core install --path="/var/www/html/" --url="http://nginxequipo45.duckdns.org" --title="Mi WordPress" --admin_user="admin" --admin_password="_Admin123" --admin_email="admin@example.com"
+#sudo -u www-data wp-cli core install --path="/var/www/html/" --url="http://nginxequipo45.duckdns.org" --title="Mi WordPress" --admin_user="admin" --admin_password="_Admin123" --admin_email="admin@example.com"
 
 #instalar plugin
-sudo -u www-data wp-cli plugin install supportcandy --activate --path="/var/www/html"
+#sudo -u www-data wp-cli plugin install supportcandy --activate --path="/var/www/html"
 
 #sudo echo "define('WP_HOME','http://nginxequipo45.duckdns.org');" >> /var/www/html/wp-config.php
 #sudo echo "define('WP_SITEURL','http://nginxequipo45.duckdns.org');" >> /var/www/html/wp-config.php

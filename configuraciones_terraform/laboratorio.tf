@@ -542,7 +542,7 @@ resource "aws_instance" "Wordpress" {
   inline = [
     "sudo -u www-data wp-cli core download --path=/var/www/html",
     "sudo -u www-data wp-cli core config --dbname=wordpress --dbuser=wordpress --dbpass=_Admin123 --dbhost=${aws_db_instance.MySQL_Wordpress.endpoint} --dbprefix=wp --path=/var/www/html",
-    "sudo -u www-data wp-cli core install --url='http://nginxequipo45.duckdns.org' --title='Wordpress equipo 4' --admin_user='admin' --admin_password='_Admin123' --admin_email='admin@example.com' --path=/var/www/html",
+    "sudo -u www-data wp-cli core install --url='http://nginxequipo45.duckdns.org' --title='Wordpress equipo 4' --admin_user='wordpress' --admin_password='_Admin123' --admin_email='admin@example.com' --path=/var/www/html",
     "sudo -u www-data wp-cli plugin install supportcandy --activate --path='/var/www/html'"
   ]
 }
@@ -560,20 +560,20 @@ resource "aws_instance" "Wordpress" {
   ]
 }
 
-resource "aws_db_instance" "MySQL_Wordpress" {
-  identifier             = "mysql-wordpress"
-  allocated_storage      = 10
-  storage_type          = "gp2"
-  engine                = "mysql"
-  engine_version        = "8.0"
-  instance_class        = "db.t3.micro"
-  username              = "wordpress"
-  password              = "_Admin123"
-  parameter_group_name  = "default.mysql8.0"
-  publicly_accessible   = false
-  skip_final_snapshot   = true
-  vpc_security_group_ids = [aws_security_group.MySQL_sg.id]
-}
+# resource "aws_db_instance" "MySQL_Wordpress" {
+#   identifier             = "mysql-wordpress"
+#   allocated_storage      = 10
+#   storage_type          = "gp2"
+#   engine                = "mysql"
+#   engine_version        = "8.0"
+#   instance_class        = "db.t3.micro"
+#   username              = "wordpress"
+#   password              = "_Admin123"
+#   parameter_group_name  = "default.mysql8.0"
+#   publicly_accessible   = false
+#   skip_final_snapshot   = true
+#   vpc_security_group_ids = [aws_security_group.MySQL_sg.id]
+# }
 
 #APARTADO RDS
 # Grupo de subredes para RDS 
@@ -585,8 +585,8 @@ resource "aws_db_subnet_group" "cms_subnet_group" {
   }
 }
 # Instancia RDS - para CMS
-resource "aws_db_instance" "cms_database" {
-  allocated_storage    = 20
+resource "aws_db_instance" "db_wordpress" {
+  allocated_storage    = 10
   storage_type         = "gp2"
   instance_class       = "db.t3.medium"
   engine               = "mysql"
@@ -601,10 +601,10 @@ resource "aws_db_instance" "cms_database" {
   vpc_security_group_ids = [aws_security_group.sg_mysql.id]
   skip_final_snapshot  = true  # PRUEBAS LUEGO ELIMINAR
   tags = {
-    Name = "wordpress_db"
+    Name = "db_wordpress"
   }
   # identificador a la instancia de la base de datos
-  identifier = "cms-database" 
+  identifier = "wordpress_db" 
   depends_on = [aws_db_subnet_group.cms_subnet_group]
 }
 # Cluster de CMS (2 instancias en Zona 2)
