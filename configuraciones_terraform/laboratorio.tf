@@ -666,7 +666,7 @@ resource "aws_instance" "XMPP-database-maestro" {
   associate_public_ip_address = false
   private_ip             = "10.218.2.200"
   provisioner "file" {
-    source      = "../configuraciones_servicios/openfire.sql"  # script local
+    source      = "../configuraciones_servicios/openfire/openfire.sql"  # script local
     destination = "/home/ubuntu/openfire.sql" # destino
     connection {
       type                = "ssh"
@@ -684,9 +684,12 @@ resource "aws_instance" "XMPP-database-maestro" {
     connection {
       type                = "ssh"
       user                = "ubuntu"
-      private_key = file(".ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
-      host                = self.public_ip
-    }
+      private_key         = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+      host                = self.private_ip
+      bastion_host        = aws_instance.nginx.public_ip
+      bastion_user        = "ubuntu"
+      bastion_private_key = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+          }
   }
   provisioner "file" {
     source      = "../configuraciones_servicios/backups.sh"  # script local
@@ -807,7 +810,7 @@ resource "aws_instance" "NAS" {
   associate_public_ip_address = false
   private_ip             = "10.218.1.150"
   provisioner "file" {
-    source      = "./backups.sh"
+    source      = "../scripts_servicios/nas.sh"
     destination = "/home/ubuntu/nas.sh"
       connection {
       type                = "ssh"
