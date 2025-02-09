@@ -1,4 +1,4 @@
-apt update && apt install  -y mysql-server
+apt update && DEBIAN_FRONTEND=noninteractive apt install  -y mysql-server
 
 sudo sed -i "s/^bind-address\s*=.*/bind-address = 0.0.0.0/" /etc/mysql/mysql.conf.d/mysqld.cnf
 sudo systemctl restart mysql

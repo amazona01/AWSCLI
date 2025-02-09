@@ -517,8 +517,21 @@ resource "aws_instance" "Wordpress" {
           }
   }
   provisioner "file" {
-    source      = "../scripts_servicios/wordpress.sh"  # script local
+    source      = "../scripts_servicios/wordpress2.sh"  # script local
     destination = "/home/ubuntu/wordpress2.sh" # destino
+    connection {
+      type                = "ssh"
+      user                = "ubuntu"  
+      private_key         = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+      host                = self.private_ip
+      bastion_host        = aws_instance.nginx.public_ip
+      bastion_user        = "ubuntu"
+      bastion_private_key = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+          }
+  }
+    provisioner "file" {
+    source      = "../configuraciones_servicios/wordpress/default-ssl.conf"  # script local
+    destination = "/home/ubuntu/default-ssl.conf" # destino
     connection {
       type                = "ssh"
       user                = "ubuntu"  
@@ -541,16 +554,16 @@ resource "aws_instance" "Wordpress" {
       bastion_user        = "ubuntu"
       bastion_private_key = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
     }
-
     inline = [
       "cd ~",
       "sudo chmod +x wordpress.sh",
       "sudo ./wordpress.sh",
-    "sudo -u www-data wp-cli core config --dbname=wordpress --dbuser=wordpress --dbpass=_Admin123 --dbhost=${aws_db_instance.MySQL_Wordpress.endpoint} --dbprefix=wp --path=/var/www/html",
-    "sudo -u www-data wp-cli core install --url='http://nginxequipo45.duckdns.org' --title='Wordpress equipo 4' --admin_user='admin' --admin_password='_Admin123' --admin_email='admin@example.com' --path=/var/www/html",
-    "sudo -u www-data wp-cli plugin install supportcandy --activate --path='/var/www/html'",
-    "sudo chmod +x wordpress2.sh",
-    "sudo ./wordpress2.sh"
+      "wait 180",
+      "sudo -u www-data wp-cli core config --dbname=wordpress --dbuser=wordpress --dbpass=_Admin123 --dbhost=${aws_db_instance.MySQL_Wordpress.endpoint} --dbprefix=wp --path=/var/www/html",
+      "sudo -u www-data wp-cli core install --url='http://nginxequipo45.duckdns.org' --title='Wordpress equipo 4' --admin_user='admin' --admin_password='_Admin123' --admin_email='admin@example.com' --path=/var/www/html",
+      "sudo -u www-data wp-cli plugin install supportcandy --activate --path='/var/www/html'",
+      "sudo chmod +x wordpress2.sh",
+      "sudo ./wordpress2.sh"
     ]
 }
 
@@ -807,7 +820,7 @@ resource "aws_ebs_volume" "volume2" {
 resource "aws_instance" "NAS" {
   ami                    = "ami-053b0d53c279acc90"
   instance_type          = "t2.micro"
-  subnet_id              = aws_subnet.public1.id
+  subnet_id              = aws_subnet.private1.id
   key_name               = aws_key_pair.ssh_key.key_name
   vpc_security_group_ids = [aws_security_group.sg_nas.id]
   associate_public_ip_address = false

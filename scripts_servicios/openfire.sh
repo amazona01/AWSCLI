@@ -4,7 +4,7 @@
 sudo apt update && sudo DEBIAN_FRONTEND=noninteractive apt upgrade -y
 
 # Instalar paquetes necesarios
-sudo DEBIAN_FRONTEND=noninteractive apt install -y openjdk-11-jre openjdk-11-jre-headless mysql-client wget libgl1 libharfbuzz0b libjpeg8 libxi6 libxrender1 libxtst6
+sudo DEBIAN_FRONTEND=noninteractive apt install -y openjdk-17-jre default-jre-headless wget mysql-client
 
 # Instalar OpenJDK 11 y MySQL
 sudo apt-get --fix-broken install -y
@@ -12,8 +12,6 @@ sudo apt-get --fix-broken install -y
 # Descargar Openfire
 wget https://download.igniterealtime.org/openfire/openfire_4.9.2_all.deb -O openfire_4.9.2_all.deb
 
-
-sudo DEBIAN_FRONTEND=noninteractive apt install -y openjdk-17-jre default-jre-headless mysql-client wget
 
 # Instalar Openfire
 sudo dpkg -i openfire_4.9.2_all.deb

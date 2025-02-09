@@ -1,11 +1,10 @@
 #!/bin/bash
 
 # Instalar mdadm si no está instalado
-apt-get update
-apt-get install -y mdadm
+apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y mdadm
 
 # Crear RAID1
-mdadm --create --verbose /dev/md0 --level=1 --name=backups --raid-devices=2 /dev/xvdf /dev/xvdg --yes
+sudo mdadm --create --verbose /dev/md0 --level=1 --name=backups --raid-devices=2 /dev/xvdf /dev/xvdg --force --run
 
 # Esperar a que el RAID esté listo
 while [ "$(cat /proc/mdstat | grep -cE 'resync|recover')" -gt 0 ]; do
