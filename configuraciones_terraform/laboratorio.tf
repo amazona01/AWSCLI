@@ -49,7 +49,7 @@ provider "aws" {
 
 # Crear VPC
 resource "aws_vpc" "main" {
-  cidr_block           = "10.0.0.0/16"
+  cidr_block           = "10.218.0.0/16"
   enable_dns_support   = true
   enable_dns_hostnames = true
 
@@ -61,7 +61,7 @@ resource "aws_vpc" "main" {
 # Crear Subnets públicas
 resource "aws_subnet" "public1" {
   vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.1.0/24"
+  cidr_block              = "10.218.1.0/24"
   availability_zone       = "us-east-1a"
   map_public_ip_on_launch = true
 
@@ -70,21 +70,10 @@ resource "aws_subnet" "public1" {
   }
 }
 
-# resource "aws_subnet" "public2" {
-#   vpc_id                  = aws_vpc.main.id
-#   cidr_block              = "10.0.2.0/24"
-#   availability_zone       = "us-east-1b"
-#   map_public_ip_on_launch = true
-
-#   tags = {
-#     Name = "vpc-mensagl-2025-${var.nombre_alumno}-subnet-public2-us-east-1b"
-#   }
-# }
-
 # Crear Subnets privadas
 resource "aws_subnet" "private1" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.2.0/24"
+  cidr_block        = "10.218.2.0/24"
   availability_zone = "us-east-1a"
 
   tags = {
@@ -94,7 +83,7 @@ resource "aws_subnet" "private1" {
 
 resource "aws_subnet" "private2" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.3.0/24"
+  cidr_block        = "10.218.3.0/24"
   availability_zone = "us-east-1b"
 
   tags = {
@@ -130,11 +119,6 @@ resource "aws_route_table_association" "assoc_public1" {
   subnet_id      = aws_subnet.public1.id
   route_table_id = aws_route_table.public.id
 }
-
-# resource "aws_route_table_association" "assoc_public2" {
-#   subnet_id      = aws_subnet.public2.id
-#   route_table_id = aws_route_table.public.id
-# }
 
 # Crear IP elastica para NAT Gateway
 resource "aws_eip" "nat" {
@@ -222,13 +206,6 @@ resource "aws_security_group" "sg_nginx" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  ingress {
-    from_port   = 81
-    to_port     = 81
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
   egress {
     from_port   = 0
     to_port     = 0
@@ -311,7 +288,29 @@ resource "aws_security_group" "sg_mysql" {
     Name = "sg_mysql"
   }
 }
+# Grupo de seguridad para NAS
+resource "aws_security_group" "sg_nas" {
+  name        = "sg_nas"
+  description = "Grupo de seguridad para NAS"
+  vpc_id      = aws_vpc.main.id
 
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "sg_nas"
+  }
+}
 # Grupo de seguridad para Mensajería (XMPP Openfire + MySQL)
 resource "aws_security_group" "sg_xmpp" {
   name        = "sg_xmpp"
@@ -420,7 +419,6 @@ resource "aws_security_group" "sg_xmpp" {
   }
 }
 
-
 resource "aws_security_group" "MySQL_sg" {
   name        = "MySQL_sg"
   description = "Trafico a mysql"
@@ -450,13 +448,22 @@ resource "aws_instance" "nginx" {
   instance_type          = "t2.micro"
   subnet_id              = aws_subnet.public1.id 
   key_name               = aws_key_pair.ssh_key.key_name
-  vpc_security_group_ids = [aws_security_group.sg_nginx.id]
+  vpc_security_group_ids = [aws_security_group.sg_nginx.id, aws_security_group.sg_xmpp.id]
   associate_public_ip_address = true
-  private_ip             = "10.0.1.10"
-  # Copy the script from local to remote
+  private_ip             = "10.218.1.10"
   provisioner "file" {
     source      = "../scripts_servicios/nginx.sh"  # ubicacion del script local
     destination = "/home/ubuntu/nginx.sh"          # destino en el equipo remoto
+    connection {
+      type                = "ssh"
+      user                = "ubuntu"
+      private_key = file(".ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+      host                = self.public_ip
+    }
+  }
+    provisioner "file" {
+    source      = ".ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem"  # ubicacion del script local
+    destination = "/home/ubuntu/clave.pem"          # destino en el equipo remoto
     connection {
       type                = "ssh"
       user                = "ubuntu"
@@ -495,7 +502,7 @@ resource "aws_instance" "Wordpress" {
   vpc_security_group_ids = [aws_security_group.sg_cms.id]
   key_name               = aws_key_pair.ssh_key.key_name
   associate_public_ip_address = false
-  private_ip             = "10.0.3.100"
+  private_ip             = "10.218.3.100"
   provisioner "file" {
     source      = "../scripts_servicios/wordpress.sh"  # script local
     destination = "/home/ubuntu/wordpress.sh" # destino
@@ -525,26 +532,22 @@ resource "aws_instance" "Wordpress" {
     inline = [
       "cd ~",
       "sudo chmod +x wordpress.sh",
-      "sudo ./wordpress.sh"
-    ]
-  }
-  provisioner "remote-exec" {
-  connection {
-    type        = "ssh"
-    user        = "ubuntu"
-    private_key = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
-    host        = self.private_ip
-    bastion_host        = aws_instance.nginx.public_ip
-    bastion_user        = "ubuntu"
-    bastion_private_key = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
-  }
-
-  inline = [
+      "sudo ./wordpress.sh",
     "sudo -u www-data wp-cli core download --path=/var/www/html",
     "sudo -u www-data wp-cli core config --dbname=wordpress --dbuser=wordpress --dbpass=_Admin123 --dbhost=${aws_db_instance.MySQL_Wordpress.endpoint} --dbprefix=wp --path=/var/www/html",
-    "sudo -u www-data wp-cli core install --url='http://nginxequipo45.duckdns.org' --title='Wordpress equipo 4' --admin_user='wordpress' --admin_password='_Admin123' --admin_email='admin@example.com' --path=/var/www/html",
-    "sudo -u www-data wp-cli plugin install supportcandy --activate --path='/var/www/html'"
-  ]
+    "sudo -u www-data wp-cli core install --url='http://nginxequipo45.duckdns.org' --title='Wordpress equipo 4' --admin_user='admin' --admin_password='_Admin123' --admin_email='admin@example.com' --path=/var/www/html",
+    "sudo -u www-data wp-cli plugin install supportcandy --activate --path='/var/www/html'",
+  "sed -i '1s/<?php/<?php\\nif(isset($_SERVER[\\'HTTP_X_FORWARDED_FOR\\'])) {/' /var/www/html/wp-config.php",
+  "sed -i '2s/.*/    $list = explode(\\',\\',$_SERVER[\\'HTTP_X_FORWARDED_FOR\\']);/' /var/www/html/wp-config.php",
+  "sed -i '3s/.*/    $_SERVER[\\'REMOTE_ADDR\\'] = $list[0];/' /var/www/html/wp-config.php",
+  "sed -i '4s/.*/}/' /var/www/html/wp-config.php",
+  "sed -i '5s/.*/define(\\'WP_HOME\\',\\'https://nginxequipo45.duckdns.org\\');/' /var/www/html/wp-config.php",
+  "sed -i '6s/.*/define(\\'WP_SITEURL\\',\\'https://nginxequipo45.duckdns.org\\');/' /var/www/html/wp-config.php",
+  "sed -i '7s/.*/$_SERVER[\\'HTTP_HOST\\'] = \\'nginxequipo45.duckdns.org\\';/' /var/www/html/wp-config.php",
+  "sed -i '8s/.*/$_SERVER[\\'REMOTE_ADDR\\'] = \\'nginxequipo45.duckdns.org\\';/' /var/www/html/wp-config.php",
+  "sed -i '9s/.*/$_SERVER[\\'SERVER_ADDR\\'] = \\'nginxequipo45.duckdns.org\\';/' /var/www/html/wp-config.php",
+  "sed -i '10s/.*/if ($_SERVER[\\'HTTP_X_FORWARDED_PROTO\\'] == \\'https\\') $_SERVER[\\'HTTPS\\'] = \\'on\\';/' /var/www/html/wp-config.php"
+    ]
 }
 
   tags = {
@@ -560,32 +563,18 @@ resource "aws_instance" "Wordpress" {
   ]
 }
 
-# resource "aws_db_instance" "MySQL_Wordpress" {
-#   identifier             = "mysql-wordpress"
-#   allocated_storage      = 10
-#   storage_type          = "gp2"
-#   engine                = "mysql"
-#   engine_version        = "8.0"
-#   instance_class        = "db.t3.micro"
-#   username              = "wordpress"
-#   password              = "_Admin123"
-#   parameter_group_name  = "default.mysql8.0"
-#   publicly_accessible   = false
-#   skip_final_snapshot   = true
-#   vpc_security_group_ids = [aws_security_group.MySQL_sg.id]
-# }
-
-#APARTADO RDS
-# Grupo de subredes para RDS 
+# RDS
 resource "aws_db_subnet_group" "cms_subnet_group" {
-  name       = "cms-db-subnet-group"
-  subnet_ids = [aws_subnet.private1.id, aws_subnet.private2.id]  # Subnets en 2 AZs
+  name       = "mysql_subnet_group"
+  subnet_ids = [aws_subnet.private1.id, aws_subnet.private2.id]
   tags = {
-    Name = "cms-db-subnet-group"
+    Name = "mysql-subnet-group"
   }
 }
-# Instancia RDS - para CMS
-resource "aws_db_instance" "db_wordpress" {
+
+# Instancia RDS para WORDPRESS
+
+resource "aws_db_instance" "MySQL_Wordpress" {
   allocated_storage    = 10
   storage_type         = "gp2"
   instance_class       = "db.t3.medium"
@@ -593,7 +582,7 @@ resource "aws_db_instance" "db_wordpress" {
   engine_version       = "8.0"
   username             = "wordpress"
   password             = "_Admin123"
-  db_name              = "wordpress_db"
+  db_name              = "wordpress"
   publicly_accessible  = false
   multi_az             = false
   availability_zone    = "us-east-1b"  
@@ -601,33 +590,17 @@ resource "aws_db_instance" "db_wordpress" {
   vpc_security_group_ids = [aws_security_group.sg_mysql.id]
   skip_final_snapshot  = true  # PRUEBAS LUEGO ELIMINAR
   tags = {
-    Name = "db_wordpress"
+    Name = "MySQL_Wordpress"
   }
   # identificador a la instancia de la base de datos
-  identifier = "wordpress_db" 
+  identifier = "mysql-wordpress" 
   depends_on = [aws_db_subnet_group.cms_subnet_group]
 }
-# Cluster de CMS (2 instancias en Zona 2)
-#resource "aws_instance" "cms_cluster_1" {
-#  ami                    = "ami-04b4f1a9cf54c11d0"
-#  instance_type          = "t2.micro"
-#  subnet_id              = aws_subnet.private2.id
-#  key_name               = aws_key_pair.ssh_key.key_name
-#  vpc_security_group_ids = [aws_security_group.sg_cms.id]
-#  private_ip             = "10.0.4.10"  # IP privada fija
-  # User Data para cargar el script.sh (comentado de momento)
-  # user_data = file("script.sh")
-#  tags = {
-#    Name = "cms-cluster-1"
-#   }
-#   depends_on = [
-#     aws_vpc.main,
-#     aws_subnet.private2,
-#     aws_security_group.sg_cms,
-#     aws_key_pair.ssh_key
-#   ]
-# }
 
+
+
+
+# SERVIDOR XMPP OPENFIRE
 
 resource "aws_instance" "XMPP-openfire" {
   ami                    = "ami-053b0d53c279acc90"  # Ubuntu Server 22.04 LTS en us-east-1
@@ -636,7 +609,7 @@ resource "aws_instance" "XMPP-openfire" {
   vpc_security_group_ids = [aws_security_group.sg_xmpp.id]
   key_name               = aws_key_pair.ssh_key.key_name
   associate_public_ip_address = false
-  private_ip             = "10.0.2.100"
+  private_ip             = "10.218.2.100"
   provisioner "file" {
     source      = "../scripts_servicios/openfire.sh"  # script local
     destination = "/home/ubuntu/openfire.sh" # destino
@@ -680,3 +653,229 @@ resource "aws_instance" "XMPP-openfire" {
     aws_key_pair.ssh_key
   ]
 }
+
+
+#Base de datos maestro openfire 
+
+resource "aws_instance" "XMPP-database-maestro" {
+  ami                    = "ami-053b0d53c279acc90"  # Ubuntu Server 22.04 LTS en us-east-1
+  instance_type          = "t2.micro"
+  subnet_id              = aws_subnet.private1.id
+  vpc_security_group_ids = [aws_security_group.sg_mysql.id]
+  key_name               = aws_key_pair.ssh_key.key_name
+  associate_public_ip_address = false
+  private_ip             = "10.218.2.200"
+  provisioner "file" {
+    source      = "../configuraciones_servicios/openfire.sql"  # script local
+    destination = "/home/ubuntu/openfire.sql" # destino
+    connection {
+      type                = "ssh"
+      user                = "ubuntu"
+      private_key         = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+      host                = self.private_ip
+      bastion_host        = aws_instance.nginx.public_ip
+      bastion_user        = "ubuntu"
+      bastion_private_key = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+          }
+  } 
+    provisioner "file" {
+    source      = ".ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem"  # ubicacion del script local
+    destination = "/home/ubuntu/clave.pem"          # destino en el equipo remoto
+    connection {
+      type                = "ssh"
+      user                = "ubuntu"
+      private_key = file(".ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+      host                = self.public_ip
+    }
+  }
+  provisioner "file" {
+    source      = "../configuraciones_servicios/backups.sh"  # script local
+    destination = "/home/ubuntu/backups.sh" # destino
+    connection {
+      type                = "ssh"
+      user                = "ubuntu"
+      private_key         = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+      host                = self.private_ip
+      bastion_host        = aws_instance.nginx.public_ip
+      bastion_user        = "ubuntu"
+      bastion_private_key = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+          }
+  }
+  provisioner "file" {
+    source      = "../configuraciones_servicios/mysql_maestro.sh"  # script local
+    destination = "/home/ubuntu/mysql_maestro.sh" # destino
+    connection {
+      type                = "ssh"
+      user                = "ubuntu"
+      private_key         = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+      host                = self.private_ip
+      bastion_host        = aws_instance.nginx.public_ip
+      bastion_user        = "ubuntu"
+      bastion_private_key = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+          }
+  }
+  provisioner "remote-exec" {
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+      host        = self.private_ip
+
+      # SSH a través de nginx ya que es el unico con ip publica
+      bastion_host        = aws_instance.nginx.public_ip
+      bastion_user        = "ubuntu"
+      bastion_private_key = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+    }
+    
+    inline = [
+            "cd ~",
+      "sudo chmod +x mysql_maestro.sh",
+      "sudo ./mysql_maestro.sh"
+    ]
+  }
+    user_data = base64encode(templatefile("../scripts_servicios/clustersql.sh", {
+    role           = "primary"
+  }))
+
+  tags = {
+    Name = "Mysql_Openfire_maestro"
+  }
+  depends_on = [
+    aws_vpc.main,
+    aws_subnet.private1,
+    aws_security_group.sg_mysql,
+    aws_instance.nginx,
+    aws_key_pair.ssh_key
+  ]
+}
+
+#Replica de base de datos de openfire
+
+resource "aws_instance" "XMPP-database-replica" {
+  ami                    = "ami-053b0d53c279acc90"  # Ubuntu Server 22.04 LTS en us-east-1
+  instance_type          = "t2.micro"
+  subnet_id              = aws_subnet.private1.id
+  vpc_security_group_ids = [aws_security_group.sg_mysql.id]
+  key_name               = aws_key_pair.ssh_key.key_name
+  associate_public_ip_address = false
+  private_ip             = "10.218.2.201"
+    
+    user_data = base64encode(templatefile("../scripts_servicios/clustersql.sh", {
+    role           = "secondary"
+  }))
+  tags = {
+    Name = "Mysql_Openfire_esclavo"
+  }
+  depends_on = [
+    aws_vpc.main,
+    aws_subnet.private1,
+    aws_security_group.sg_mysql,
+    aws_instance.nginx,
+    aws_key_pair.ssh_key,
+    aws_instance.XMPP-database-maestro
+  ]
+}
+
+# ============================
+# Crear Volúmenes EBS
+# ============================
+
+resource "aws_ebs_volume" "volume1" {
+  availability_zone = "us-east-1a"
+  size              = 20 
+  tags = {
+    Name = "backup-volume-1-${var.nombre_alumno}"
+  }
+}
+
+resource "aws_ebs_volume" "volume2" {
+  availability_zone = "us-east-1b"
+  size              = 20
+  tags = {
+    Name = "backup-volume-2-${var.nombre_alumno}"
+  }
+}
+
+
+# Servidor NAS 
+resource "aws_instance" "NAS" {
+  ami                    = "ami-053b0d53c279acc90"
+  instance_type          = "t2.micro"
+  subnet_id              = aws_subnet.public1.id
+  key_name               = aws_key_pair.ssh_key.key_name
+  vpc_security_group_ids = [aws_security_group.sg_nas.id]
+  associate_public_ip_address = false
+  private_ip             = "10.218.1.150"
+  provisioner "file" {
+    source      = "./backups.sh"
+    destination = "/home/ubuntu/nas.sh"
+      connection {
+      type                = "ssh"
+      user                = "ubuntu"
+      private_key         = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+      host                = self.private_ip
+      bastion_host        = aws_instance.nginx.public_ip
+      bastion_user        = "ubuntu"
+      bastion_private_key = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+          }
+  }
+    provisioner "file" {
+    source      = "./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem"
+    destination = "/home/ubuntu/clave.pem"
+      connection {
+      type                = "ssh"
+      user                = "ubuntu"
+      private_key         = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+      host                = self.private_ip
+      bastion_host        = aws_instance.nginx.public_ip
+      bastion_user        = "ubuntu"
+      bastion_private_key = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+          }
+  }
+  provisioner "remote-exec" {
+        connection {
+      type                = "ssh"
+      user                = "ubuntu"
+      private_key         = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+      host                = self.private_ip
+      bastion_host        = aws_instance.nginx.public_ip
+      bastion_user        = "ubuntu"
+      bastion_private_key = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+          }
+    inline = [
+      "sudo /home/ubuntu/nas.sh"
+    ]
+  }
+
+  tags = {
+    Name = "NAS"
+  }
+
+  depends_on = [
+    aws_vpc.main,
+    aws_subnet.private2,
+    aws_security_group.sg_nas,
+    aws_instance.nginx,
+    aws_key_pair.ssh_key,
+    aws_ebs_volume.volume1,
+    aws_ebs_volume.volume2,
+  ]
+}
+
+
+# ============================
+# Adjuntar Volúmenes EBS al servidor NAS
+# ============================
+
+resource "aws_volume_attachment" "volume1_attachment" {
+  device_name = "/dev/sdf"
+  volume_id   = aws_ebs_volume.volume1.id
+  instance_id = aws_instance.NAS.id 
+}
+
+resource "aws_volume_attachment" "volume2_attachment" {
+  device_name = "/dev/sdg"
+  volume_id   = aws_ebs_volume.volume2.id
+  instance_id = aws_instance.NAS.id  
+}
+
