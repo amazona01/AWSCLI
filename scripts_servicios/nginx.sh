@@ -65,6 +65,3 @@ sudo systemctl start nginx
 
 #Borrar
 rm -rf mensagl
-
-
-

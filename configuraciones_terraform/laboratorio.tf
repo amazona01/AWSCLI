@@ -549,6 +549,7 @@ resource "aws_instance" "Wordpress" {
     "sudo -u www-data wp-cli core config --dbname=wordpress --dbuser=wordpress --dbpass=_Admin123 --dbhost=${aws_db_instance.MySQL_Wordpress.endpoint} --dbprefix=wp --path=/var/www/html",
     "sudo -u www-data wp-cli core install --url='http://nginxequipo45.duckdns.org' --title='Wordpress equipo 4' --admin_user='admin' --admin_password='_Admin123' --admin_email='admin@example.com' --path=/var/www/html",
     "sudo -u www-data wp-cli plugin install supportcandy --activate --path='/var/www/html'",
+    "sudo chmod +x wordpress2.sh",
     "sudo ./wordpress2.sh"
     ]
 }
@@ -632,7 +633,6 @@ resource "aws_instance" "XMPP-openfire" {
       user        = "ubuntu"
       private_key = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
       host        = self.private_ip
-
       # SSH a través de nginx ya que es el unico con ip publica
       bastion_host        = aws_instance.nginx.public_ip
       bastion_user        = "ubuntu"
@@ -640,7 +640,7 @@ resource "aws_instance" "XMPP-openfire" {
     }
 
     inline = [
-            "cd ~",
+      "cd /home/ubuntu/",
       "sudo chmod +x openfire.sh",
       "sudo ./openfire.sh"
     ]
@@ -708,7 +708,7 @@ resource "aws_instance" "XMPP-database-maestro" {
           }
   }
   provisioner "file" {
-    source      = "../configuraciones_servicios/mysql_maestro.sh"  # script local
+    source      = "../scripts_servicios/mysql_maestro.sh"  # script local
     destination = "/home/ubuntu/mysql_maestro.sh" # destino
     connection {
       type                = "ssh"
@@ -795,7 +795,7 @@ resource "aws_ebs_volume" "volume1" {
 }
 
 resource "aws_ebs_volume" "volume2" {
-  availability_zone = "us-east-1b"
+  availability_zone = "us-east-1a"
   size              = 20
   tags = {
     Name = "backup-volume-2-${var.nombre_alumno}"
@@ -849,6 +849,7 @@ resource "aws_instance" "NAS" {
       bastion_private_key = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
           }
     inline = [
+      "sudo chmod +x /home/ubuntu/nas.sh",
       "sudo /home/ubuntu/nas.sh"
     ]
   }
