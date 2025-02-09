@@ -21,11 +21,20 @@ sudo chown -R www-data:www-data /var/www/html
 sudo a2enmod rewrite
 sudo systemctl restart apache2
 
-rsync -avz -e "ssh -i /home/ubuntu/clave.pem" /var/www/html/uploads/ ec2-user@10.218.3.101:/var/www/html/uploads/
+sudo -u www-data wp-cli core download --path=/var/www/html
 
 
 
-
+#sed -i '1s/<?php/<?php\\nif(isset($_SERVER[\\'HTTP_X_FORWARDED_FOR\\'])) {/' /var/www/html/wp-config.php,
+#sed -i '2s/.*/    $list = explode(\\',\\',$_SERVER[\\'HTTP_X_FORWARDED_FOR\\']);/' /var/www/html/wp-config.php,
+#sed -i '3s/.*/    $_SERVER[\\'REMOTE_ADDR\\'] = $list[0];/' /var/www/html/wp-config.php,
+#sed -i '4s/.*/}/' /var/www/html/wp-config.php,
+#sed -i '5s/.*/define(\\'WP_HOME\\',\\'https://nginxequipo45.duckdns.org\\');/' /var/www/html/wp-config.php,
+#sed -i '6s/.*/define(\\'WP_SITEURL\\',\\'https://nginxequipo45.duckdns.org\\');/' /var/www/html/wp-config.php,
+#sed -i '7s/.*/$_SERVER[\\'HTTP_HOST\\'] = \\'nginxequipo45.duckdns.org\\';/' /var/www/html/wp-config.php,
+#sed -i '8s/.*/$_SERVER[\\'REMOTE_ADDR\\'] = \\'nginxequipo45.duckdns.org\\';/' /var/www/html/wp-config.php,
+#sed -i '9s/.*/$_SERVER[\\'SERVER_ADDR\\'] = \\'nginxequipo45.duckdns.org\\';/' /var/www/html/wp-config.php,
+#sed -i '10s/.*/if ($_SERVER[\\'HTTP_X_FORWARDED_PROTO\\'] == \\'https\\') $_SERVER[\\'HTTPS\\'] = \\'on\\';/' /var/www/html/wp-config.php
 
 
 

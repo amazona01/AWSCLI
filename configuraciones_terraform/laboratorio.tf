@@ -516,6 +516,19 @@ resource "aws_instance" "Wordpress" {
       bastion_private_key = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
           }
   }
+  provisioner "file" {
+    source      = "../scripts_servicios/wordpress.sh"  # script local
+    destination = "/home/ubuntu/wordpress2.sh" # destino
+    connection {
+      type                = "ssh"
+      user                = "ubuntu"  
+      private_key         = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+      host                = self.private_ip
+      bastion_host        = aws_instance.nginx.public_ip
+      bastion_user        = "ubuntu"
+      bastion_private_key = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+          }
+  }
   provisioner "remote-exec" {
     connection {
       type        = "ssh"
@@ -533,20 +546,10 @@ resource "aws_instance" "Wordpress" {
       "cd ~",
       "sudo chmod +x wordpress.sh",
       "sudo ./wordpress.sh",
-    "sudo -u www-data wp-cli core download --path=/var/www/html",
     "sudo -u www-data wp-cli core config --dbname=wordpress --dbuser=wordpress --dbpass=_Admin123 --dbhost=${aws_db_instance.MySQL_Wordpress.endpoint} --dbprefix=wp --path=/var/www/html",
     "sudo -u www-data wp-cli core install --url='http://nginxequipo45.duckdns.org' --title='Wordpress equipo 4' --admin_user='admin' --admin_password='_Admin123' --admin_email='admin@example.com' --path=/var/www/html",
     "sudo -u www-data wp-cli plugin install supportcandy --activate --path='/var/www/html'",
-  "sed -i '1s/<?php/<?php\\nif(isset($_SERVER[\\'HTTP_X_FORWARDED_FOR\\'])) {/' /var/www/html/wp-config.php",
-  "sed -i '2s/.*/    $list = explode(\\',\\',$_SERVER[\\'HTTP_X_FORWARDED_FOR\\']);/' /var/www/html/wp-config.php",
-  "sed -i '3s/.*/    $_SERVER[\\'REMOTE_ADDR\\'] = $list[0];/' /var/www/html/wp-config.php",
-  "sed -i '4s/.*/}/' /var/www/html/wp-config.php",
-  "sed -i '5s/.*/define(\\'WP_HOME\\',\\'https://nginxequipo45.duckdns.org\\');/' /var/www/html/wp-config.php",
-  "sed -i '6s/.*/define(\\'WP_SITEURL\\',\\'https://nginxequipo45.duckdns.org\\');/' /var/www/html/wp-config.php",
-  "sed -i '7s/.*/$_SERVER[\\'HTTP_HOST\\'] = \\'nginxequipo45.duckdns.org\\';/' /var/www/html/wp-config.php",
-  "sed -i '8s/.*/$_SERVER[\\'REMOTE_ADDR\\'] = \\'nginxequipo45.duckdns.org\\';/' /var/www/html/wp-config.php",
-  "sed -i '9s/.*/$_SERVER[\\'SERVER_ADDR\\'] = \\'nginxequipo45.duckdns.org\\';/' /var/www/html/wp-config.php",
-  "sed -i '10s/.*/if ($_SERVER[\\'HTTP_X_FORWARDED_PROTO\\'] == \\'https\\') $_SERVER[\\'HTTPS\\'] = \\'on\\';/' /var/www/html/wp-config.php"
+    "sudo ./wordpress2.sh"
     ]
 }
 
@@ -692,7 +695,7 @@ resource "aws_instance" "XMPP-database-maestro" {
           }
   }
   provisioner "file" {
-    source      = "../configuraciones_servicios/backups.sh"  # script local
+    source      = "../scripts_servicios/backups.sh"  # script local
     destination = "/home/ubuntu/backups.sh" # destino
     connection {
       type                = "ssh"
