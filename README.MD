@@ -71,15 +71,16 @@ El reto Mensagl tiene como objetivo la implementación de un servicio de mensaje
 6. Cambiar los dominios y certificados en configuraciones_servicios/nginx/default
 7. Cambiar los dominios y certificados en configuraciones_servicios/nginx/nginx.conf
 8. Cambiar la el dominio en configuraciones_servicios/wordpress/default-ssl.conf
-9. Cambiar las direcciones IP y la red
-10. Configurar Terraform e iniciar la infraestructura.
+9. Cambiar las direcciones ip en scripts_servicios/clustersql.sh
+10. Cambiar las direcciones IP y la red
+11. Configurar Terraform e iniciar la infraestructura.
    ```bash
    cd AWSCLI/configuraciones_terraform
    terraform init
    terraform plan
    terraform apply
    ```
-11. Comprobar conectividad y funcionalidad.
+12. Comprobar conectividad y funcionalidad.
 
 <div align="center">
 
