@@ -29,7 +29,7 @@ sudo sed -i "s/^bind-address\s*=.*/bind-address = 0.0.0.0/" /etc/mysql/mysql.con
 sudo systemctl restart mysql
 
 sudo mysql -u root -p_Admin123 -e "CREATE DATABASE openfire;"
-sudo mysql -u root -p_Admin123-e "source /home/ubuntu/openfire.sql"
+sudo mysql -u root -p_Admin123 -e "USE openfire; source /home/ubuntu/openfire.sql;"
 sudo mysql -u root -p_Admin123 -e "CREATE USER 'openfire'@'%' IDENTIFIED BY '_Admin123';"
 sudo mysql -u root -p_Admin123 -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, ALTER ON openfire.* TO 'openfire'@'%';"
 sudo mysql -u root -p_Admin123 -e "FLUSH PRIVILEGES;"
