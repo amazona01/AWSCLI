@@ -6,7 +6,6 @@ upstream openfireapps{
 }
 upstream wordpress{
     server 10.218.3.100:443;
-    server  10.218.3.101:443;
 }
 upstream openfireappsssl{
     server 10.218.2.100:7443;
@@ -29,7 +28,7 @@ server {
         proxy_set_header        X-Real-IP $remote_addr;
         proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header        X-Forwarded-Proto $scheme;
-        proxy_pass http://wordpress/;
+        proxy_pass https://wordpress/;
     }
 }
 server {
