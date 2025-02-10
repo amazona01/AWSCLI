@@ -503,6 +503,16 @@ resource "aws_instance" "Wordpress" {
   key_name               = aws_key_pair.ssh_key.key_name
   associate_public_ip_address = false
   private_ip             = "10.218.3.100"
+    provisioner "file" {
+    source      = ".ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem"  # ubicacion del script local
+    destination = "/home/ubuntu/clave.pem"          # destino en el equipo remoto
+    connection {
+      type                = "ssh"
+      user                = "ubuntu"
+      private_key = file(".ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+      host                = self.public_ip
+    }
+  }
   provisioner "file" {
     source      = "../scripts_servicios/wordpress.sh"  # script local
     destination = "/home/ubuntu/wordpress.sh" # destino
@@ -824,7 +834,7 @@ resource "aws_instance" "NAS" {
   key_name               = aws_key_pair.ssh_key.key_name
   vpc_security_group_ids = [aws_security_group.sg_nas.id]
   associate_public_ip_address = false
-  private_ip             = "10.218.1.150"
+  private_ip             = "10.218.2.150"
   provisioner "file" {
     source      = "../scripts_servicios/nas.sh"
     destination = "/home/ubuntu/nas.sh"

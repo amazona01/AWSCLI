@@ -1,10 +1,12 @@
 #!/bin/bash
-#preparar dns dinamico
-# crear directorio
+#cambiar dominios
 wordpress=nginxequipo45
 openfire=openfire-equipo45
-token=0b4bb411-ab26-4464-8a16-0d373fa6bf9c
+#cambiar token
+token=0b4bb411-ab26-4464-8a16-0d373fa6bf9c 
+#cambiar alumno
 alumno=amazona01
+
 mkdir -p "/home/ubuntu/duckdns/"
 cd "/home/ubuntu/duckdns/"
 
@@ -41,9 +43,9 @@ sudo mv mensagl/configuraciones_servicios/nginx/nginx.conf /etc/nginx/nginx.conf
 #Restart Nginx
 sudo systemctl stop nginx
 
-sudo certbot certonly  --non-interactive --agree-tos --email $alumno@educantabria.es --preferred-challenges dns --authenticator dns-duckdns --dns-duckdns-token $token --dns-duckdns-propagation-seconds 60 -d "$wordpress.duckdns.org"
-sudo certbot certonly  --non-interactive --agree-tos --email $alumno@educantabria.es --preferred-challenges dns --authenticator dns-duckdns --dns-duckdns-token $token --dns-duckdns-propagation-seconds 60 -d "$openfire.duckdns.org"
-sudo certbot certonly --non-interactive --agree-tos --email $alumno@educantabria.es --preferred-challenges dns --authenticator dns-duckdns --dns-duckdns-token $token --dns-duckdns-propagation-seconds 60 -d "*.$openfire.duckdns.org"
+sudo certbot certonly  --non-interactive --agree-tos --email $alumno@educantabria.es --preferred-challenges dns --authenticator dns-duckdns --dns-duckdns-token $token --dns-duckdns-propagation-seconds 120 -d "$wordpress.duckdns.org"
+sudo certbot certonly  --non-interactive --agree-tos --email $alumno@educantabria.es --preferred-challenges dns --authenticator dns-duckdns --dns-duckdns-token $token --dns-duckdns-propagation-seconds 180 -d "$openfire.duckdns.org"
+sudo certbot certonly --non-interactive --agree-tos --email $alumno@educantabria.es --preferred-challenges dns --authenticator dns-duckdns --dns-duckdns-token $token --dns-duckdns-propagation-seconds 120 -d "*.$openfire.duckdns.org"
 
 mkdir /home/ubuntu/certwordpress
 mkdir -p /home/ubuntu/certopenfire/wildcard
@@ -59,8 +61,6 @@ sudo chown -R ubuntu:ubuntu /home/ubuntu/certwordpress
 sudo chown -R ubuntu:ubuntu /home/ubuntu/certopenfire
 sudo chmod -R 600 /home/ubuntu/certwordpress/
 sudo chmod -R 600 /home/ubuntu/certopenfire/
-
-sudo scp -i clave.pem /home/ubuntu/certwordpress/* ubuntu@10.218.3.100:/home/ubuntu/
 
 sudo systemctl start nginx
 
