@@ -7,7 +7,8 @@ sudo -u www-data wp-cli option update default_role "subscriber" --path=/var/www/
 
 
 sudo -u www-data wp-cli option update users_can_register 1 --path=/var/www/html
-sudo -u www-data wp-cli post create --post_title="Registro" --post_content="[user_registration_form]" --post_status="publish" --post_type="page" --path=/var/www/html --porcelain
+sudo -u www-data wp-cli post create --post_title="Mi cuenta" --post_content="[user_registration_my_account]" --post_status="publish" --post_type="page" --path=/var/www/html --porcelain
+sudo -u www-data wp-cli post create --post_title="Registro" --post_content="[user_registration_form id="17"]" --post_status="publish" --post_type="page" --path=/var/www/html --porcelain
 sudo -u www-data wp-cli post create --post_title="Tickets" --post_content="[supportcandy]" --post_status="publish" --post_type="page" --path=/var/www/html --porcelain
 
 sudo sed -i '1d' /var/www/html/wp-config.php
