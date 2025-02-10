@@ -34,12 +34,9 @@ snap install certbot-dns-duckdns
 sudo snap set certbot trust-plugin-with-root=ok
 sudo snap connect certbot:plugin certbot-dns-duckdns
 
-#clonar git
-sudo git clone https://github.com/$alumno/mensagl.git
-
 #mover configuraciones
-sudo mv mensagl/configuraciones_servicios/nginx/default /etc/nginx/sites-available/
-sudo mv mensagl/configuraciones_servicios/nginx/nginx.conf /etc/nginx/nginx.conf
+sudo mv /home/ubuntu/default /etc/nginx/
+sudo mv /home/ubuntu/nginx.conf /etc/nginx/nginx.conf
 #Restart Nginx
 sudo systemctl stop nginx
 

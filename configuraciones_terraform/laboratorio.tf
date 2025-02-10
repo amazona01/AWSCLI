@@ -462,8 +462,28 @@ resource "aws_instance" "nginx" {
     }
   }
     provisioner "file" {
-    source      = ".ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem"  # ubicacion del script local
-    destination = "/home/ubuntu/clave.pem"          # destino en el equipo remoto
+    source      = ".ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem"  
+    destination = "/home/ubuntu/clave.pem"          
+    connection {
+      type                = "ssh"
+      user                = "ubuntu"
+      private_key = file(".ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+      host                = self.public_ip
+    }
+  }
+  provisioner "file" {
+    source      = "../configuraciones_servicios/nginx/default"  
+    destination = "/home/ubuntu/default"          
+    connection {
+      type                = "ssh"
+      user                = "ubuntu"
+      private_key = file(".ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+      host                = self.public_ip
+    }
+  }
+  provisioner "file" {
+    source      = "../configuraciones_servicios/nginx/nginx.conf"  
+    destination = "/home/ubuntu/nginx.conf"          
     connection {
       type                = "ssh"
       user                = "ubuntu"
