@@ -103,6 +103,9 @@ Para más información, contacta con los administradores del repositorio o consu
     </tr>
 </table>
 </div>
----
-👷Proyecto desarrollado por estudiantes de ASIR2, curso 2024-25 👷. 
+--------------------------------------------------------------------------------------------------------------------------------<br>
+👷Proyecto desarrollado por estudiantes de ASIR2, curso 2024-25 👷 <br>
 
+![Screenshot](recursos/estudiante.png) 
+
+--------------------------------------------------------------------------------------------------------------------------------
