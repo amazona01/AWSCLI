@@ -1,10 +1,7 @@
-sudo -u www-data wp-cli role create "cliente_soporte" "Cliente de soporte" --path=/var/www/html
-
-sudo -u www-data wp-cli cap add "cliente_soporte" "read" --path=/var/www/html
-sudo -u www-data wp-cli cap add "cliente_soporte" "create_ticket" --path=/var/www/html
-sudo -u www-data wp-cli cap add "cliente_soporte" "view_own_ticket" --path=/var/www/html
-
-sudo -u www-data wp-cli option update default_role "cliente_soporte" --path=/var/www/html
+sudo -u www-data wp-cli cap add "subscriber" "read" --path=/var/www/html
+sudo -u www-data wp-cli cap add "subscriber" "create_ticket" --path=/var/www/html
+sudo -u www-data wp-cli cap add "subscriber" "view_own_ticket" --path=/var/www/html
+sudo -u www-data wp-cli option update default_role "subscriber" --path=/var/www/html
 
 
 
