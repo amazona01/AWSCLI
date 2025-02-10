@@ -7,8 +7,6 @@ secondary_ip="10.218.2.201"
 db_user="openfire"
 db_password="_Admin123"
 db_name="openfire"
-repl_user="openfire"
-repl_password="_Admin123"
 ssh_key_path="/home/ubuntu/clave.pem"
 
 # 1. Configure SSH Key
@@ -20,24 +18,9 @@ if ! dpkg -l | grep -q mysql-server; then
     
 fi
 
-# 3. Configure MySQL
-if [ "$role" = "primary" ]; then
+
 server_id=1
-apt update && DEBIAN_FRONTEND=noninteractive apt install  -y mysql-server
-
-sudo sed -i "s/^bind-address\s*=.*/bind-address = 0.0.0.0/" /etc/mysql/mysql.conf.d/mysqld.cnf
-sudo systemctl restart mysql
-
-sudo mysql -u root -p_Admin123 -e "CREATE DATABASE openfire;"
-sudo mysql -u root -p_Admin123 -e "USE openfire; source /home/ubuntu/openfire.sql;"
-sudo mysql -u root -p_Admin123 -e "CREATE USER 'openfire'@'%' IDENTIFIED BY '_Admin123';"
-sudo mysql -u root -p_Admin123 -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, ALTER ON openfire.* TO 'openfire'@'%';"
-sudo mysql -u root -p_Admin123 -e "FLUSH PRIVILEGES;"
-
-chmod +x /home/ubuntu/backups.sh
-mkdir /home/ubuntu/backups
-(crontab -l 2>/dev/null; echo "0 3 * * * /home/ubuntu/backups.sh >/dev/null 2>&1") | crontab -
-fi
+# 3. Configure MySQL
 if [ "$role" = "secondary" ]; then
     server_id=2
 fi
@@ -67,8 +50,8 @@ if [ "$role" = "primary" ]; then
     mysql -u root -p"$db_password" <<EOF
     CREATE USER '$db_user'@'%' IDENTIFIED WITH mysql_native_password BY '$db_password';
     GRANT ALL PRIVILEGES ON $db_name.* TO '$db_user'@'%';
-    CREATE USER '$repl_user'@'%' IDENTIFIED WITH mysql_native_password BY '$repl_password';
-    GRANT REPLICATION SLAVE ON *.* TO '$repl_user'@'%';
+    GRANT REPLICATION SLAVE ON *.* TO '$db_user'@'%';
+    GRANT REPLICATION CLIENT ON *.* TO '$db_user'@'%';
     FLUSH PRIVILEGES;
 EOF
 
@@ -84,14 +67,38 @@ elif [ "$role" = "secondary" ]; then
     MASTER_STATUS=$(cat /tmp/master_status.txt)
     binlog_file=$(echo "$MASTER_STATUS" | awk '{print $1}')
     binlog_pos=$(echo "$MASTER_STATUS" | awk '{print $2}')
-
     mysql -u root -p"$db_password" <<EOF
+    CREATE USER '$db_user'@'%' IDENTIFIED WITH mysql_native_password BY '$db_password';
+    GRANT ALL PRIVILEGES ON $db_name.* TO '$db_user'@'%';
+    GRANT REPLICATION SLAVE ON *.* TO '$db_user'@'%';
+    GRANT REPLICATION CLIENT ON *.* TO '$db_user'@'%';
+    FLUSH PRIVILEGES;
+EOF
+    mysql -u root -p"$db_password" <<EOF 
     CHANGE MASTER TO
     MASTER_HOST='$primary_ip',
-    MASTER_USER='$repl_user',
-    MASTER_PASSWORD='$repl_password',
+    MASTER_USER='$db_user',
+    MASTER_PASSWORD='$db_password',
     MASTER_LOG_FILE='$binlog_file',
     MASTER_LOG_POS=$binlog_pos;
     START SLAVE;
 EOF
+
+fi
+
+if [ "$role" = "primary" ]; then
+apt update && DEBIAN_FRONTEND=noninteractive apt install  -y mysql-server
+
+sudo sed -i "s/^bind-address\s*=.*/bind-address = 0.0.0.0/" /etc/mysql/mysql.conf.d/mysqld.cnf
+sudo systemctl restart mysql
+
+sudo mysql -u root -p_Admin123 -e "CREATE DATABASE openfire;"
+sudo mysql -u root -p_Admin123 -e "USE openfire; source /home/ubuntu/openfire.sql;"
+sudo mysql -u root -p_Admin123 -e "CREATE USER 'openfire'@'%' IDENTIFIED BY '_Admin123';"
+sudo mysql -u root -p_Admin123 -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, ALTER ON openfire.* TO 'openfire'@'%';"
+sudo mysql -u root -p_Admin123 -e "FLUSH PRIVILEGES;"
+
+chmod +x /home/ubuntu/backups.sh
+mkdir /home/ubuntu/backups
+(crontab -l 2>/dev/null; echo "0 3 * * * /home/ubuntu/backups.sh >/dev/null 2>&1") | crontab -
 fi
