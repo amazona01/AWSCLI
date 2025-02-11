@@ -40,12 +40,45 @@ sudo mv /home/ubuntu/nginx.conf /etc/nginx/nginx.conf
 #Restart Nginx
 sudo systemctl stop nginx
 
-sudo certbot certonly  --non-interactive --agree-tos --email $alumno@educantabria.es --preferred-challenges dns --authenticator dns-duckdns --dns-duckdns-token $token --dns-duckdns-propagation-seconds 60 -d "$wordpress.duckdns.org"
-sudo certbot certonly  --non-interactive --agree-tos --email $alumno@educantabria.es --preferred-challenges dns --authenticator dns-duckdns --dns-duckdns-token $token --dns-duckdns-propagation-seconds 120 -d "$wordpress.duckdns.org"
-sudo certbot certonly  --non-interactive --agree-tos --email $alumno@educantabria.es --preferred-challenges dns --authenticator dns-duckdns --dns-duckdns-token $token --dns-duckdns-propagation-seconds 60 -d "$openfire.duckdns.org"
-sudo certbot certonly  --non-interactive --agree-tos --email $alumno@educantabria.es --preferred-challenges dns --authenticator dns-duckdns --dns-duckdns-token $token --dns-duckdns-propagation-seconds 120 -d "$openfire.duckdns.org"
-sudo certbot certonly --non-interactive --agree-tos --email $alumno@educantabria.es --preferred-challenges dns --authenticator dns-duckdns --dns-duckdns-token $token --dns-duckdns-propagation-seconds 60 -d "*.$openfire.duckdns.org"
-sudo certbot certonly --non-interactive --agree-tos --email $alumno@educantabria.es --preferred-challenges dns --authenticator dns-duckdns --dns-duckdns-token $token --dns-duckdns-propagation-seconds 120 -d "*.$openfire.duckdns.org"
+while [ ! -e /etc/letsencrypt/live/nginxequipo45.duckdns.org ]; do
+    
+    sudo certbot certonly \
+        --non-interactive \
+        --agree-tos \
+        --email "$email" \
+        --preferred-challenges dns \
+        --authenticator dns-duckdns \
+        --dns-duckdns-token "$token" \
+        --dns-duckdns-propagation-seconds 60 \
+        -d "$wordpress.duckdns.org"
+
+done
+while [ ! -e /etc/letsencrypt/live/openfire-equipo45.duckdns.org ]; do
+    
+    sudo certbot certonly \
+        --non-interactive \
+        --agree-tos \
+        --email "$email" \
+        --preferred-challenges dns \
+        --authenticator dns-duckdns \
+        --dns-duckdns-token "$token" \
+        --dns-duckdns-propagation-seconds 60 \
+        -d "$openfire.duckdns.org"
+
+done
+while [ ! -e /etc/letsencrypt/live/openfire-equipo45.duckdns.org-0001 ]; do
+    
+    sudo certbot certonly \
+        --non-interactive \
+        --agree-tos \
+        --email "$email" \
+        --preferred-challenges dns \
+        --authenticator dns-duckdns \
+        --dns-duckdns-token "$token" \
+        --dns-duckdns-propagation-seconds 60 \
+        -d "$openfire.duckdns.org"
+
+done
 
 mkdir /home/ubuntu/certwordpress
 mkdir -p /home/ubuntu/certopenfire/wildcard
