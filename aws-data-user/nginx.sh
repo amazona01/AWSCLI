@@ -68,7 +68,7 @@ while [ ! -e /etc/letsencrypt/live/openfire-equipo45.duckdns.org ]; do
 done
 while [ ! -e /etc/letsencrypt/live/openfire-equipo45.duckdns.org-0001 ]; do
     
-    sudo certbot certonly \
+sudo certbot certonly \
         --non-interactive \
         --agree-tos \
         --email "$email" \
@@ -76,7 +76,7 @@ while [ ! -e /etc/letsencrypt/live/openfire-equipo45.duckdns.org-0001 ]; do
         --authenticator dns-duckdns \
         --dns-duckdns-token "$token" \
         --dns-duckdns-propagation-seconds 60 \
-        -d "$openfire.duckdns.org"
+        -d "*.$openfire.duckdns.org"
 
 done
 
