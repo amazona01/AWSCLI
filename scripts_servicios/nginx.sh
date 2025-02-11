@@ -40,12 +40,12 @@ sudo mv /home/ubuntu/nginx.conf /etc/nginx/nginx.conf
 #Restart Nginx
 sudo systemctl stop nginx
 
-while [ ! -e /etc/letsencrypt/live/wordpress218	.duckdns.org ]; do
+while [ ! -e /etc/letsencrypt/live/wordpress218.duckdns.org ]; do
     
     sudo certbot certonly \
         --non-interactive \
         --agree-tos \
-        --email "$email" \
+        --email "$alumno@educantabria.es" \
         --preferred-challenges dns \
         --authenticator dns-duckdns \
         --dns-duckdns-token "$token" \
@@ -58,7 +58,7 @@ while [ ! -e /etc/letsencrypt/live/openfire218.duckdns.org ]; do
     sudo certbot certonly \
         --non-interactive \
         --agree-tos \
-        --email "$email" \
+        --email "$alumno@educantabria.es" \
         --preferred-challenges dns \
         --authenticator dns-duckdns \
         --dns-duckdns-token "$token" \
@@ -71,7 +71,7 @@ while [ ! -e /etc/letsencrypt/live/openfire218.duckdns.org-0001 ]; do
 sudo certbot certonly \
         --non-interactive \
         --agree-tos \
-        --email "$email" \
+        --email "$alumno@educantabria.es" \
         --preferred-challenges dns \
         --authenticator dns-duckdns \
         --dns-duckdns-token "$token" \
