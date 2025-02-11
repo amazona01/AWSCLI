@@ -2,10 +2,10 @@
 
 # Variables (Make sure to replace with actual values)
 #cambiar dominios
-wordpress=wordpress218	
+wordpress=wordpress218
 openfire=openfire218
 #cambiar token
-token=0b4bb411-ab26-4464-8a16-0d373fa6bf9c 
+token=0b4bb411-ab26-4464-8a16-0d373fa6bf9c
 #cambiar alumno
 alumno=amazona01
 #cambiar ips de los servidores

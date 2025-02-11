@@ -1,11 +1,13 @@
 #!/bin/bash
 #cambiar dominios
-wordpress=wordpress218	
+wordpress=wordpress218
 openfire=openfire218
 #cambiar token
-token=0b4bb411-ab26-4464-8a16-0d373fa6bf9c 
+token=0b4bb411-ab26-4464-8a16-0d373fa6bf9c
 #cambiar alumno
 alumno=amazona01
+
+chmod 600 clave.pem
 
 mkdir -p "/home/ubuntu/duckdns/"
 cd "/home/ubuntu/duckdns/"
@@ -92,5 +94,27 @@ sudo chmod -R 770 /home/ubuntu
 
 sudo systemctl start nginx
 
-#Borrar
-rm -rf mensagl
+echo "
+# Check Nginx status on the remote server
+ssh -o StrictHostKeyChecking=no -i /home/ubuntu/clave.pem ubuntu@$nginx_secundario 'sudo systemctl is-active nginx' > remote_status.txt
+
+# Check Nginx status on the local server
+local_status=\$(sudo systemctl is-active nginx)
+
+# Read the remote status
+if [[ -f remote_status.txt ]]; then
+    remote_status=\$(cat remote_status.txt)
+fi
+
+# If Nginx is inactive on both servers, start it locally
+if [[ \"\$remote_status\" != \"active\" && \"\$local_status\" != \"active\" ]]; then
+    sudo systemctl start nginx
+else
+    exit 1
+fi
+" > /home/ubuntu/fallback.sh
+chmod +x /home/ubuntu/fallback.sh
+
+
+# Add a cron job to run the fallback script every minute
+(crontab -l 2>/dev/null; echo "*/1 * * * * /home/ubuntu/fallback.sh") | crontab -
