@@ -35,7 +35,7 @@ chmod 600 /home/ubuntu/clave.pem
 echo "
 wordpress=$wordpress
 openfire=$openfire
-token=$token 
+token=$token
 alumno=$alumno
 # Check Nginx status on the remote server
 remote_status=\$(ssh -o StrictHostKeyChecking=no -i /home/ubuntu/clave.pem ubuntu@$nginx_principal \"sudo systemctl is-active nginx\")
@@ -55,7 +55,7 @@ chmod 700 /home/ubuntu/duckdns/duck.sh
 echo "
 wordpress=$wordpress
 openfire=$openfire
-token=$token 
+token=$token
 alumno=$alumno
 # Check Nginx status on the remote server
 remote_status=\$(ssh -o StrictHostKeyChecking=no -i /home/ubuntu/clave.pem ubuntu@$nginx_principal \"sudo systemctl is-active nginx\")

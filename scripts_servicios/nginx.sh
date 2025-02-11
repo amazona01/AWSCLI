@@ -13,15 +13,50 @@ cd "/home/ubuntu/duckdns/"
 
 sudo apt update && sudo  DEBIAN_FRONTEND=noninteractive apt install nginx -y
 
-# Crear script para actualizar la ip dinamicamente
-echo "echo url=\"https://www.duckdns.org/update?domains=$wordpress&token=$token&ip=\" | curl -k -o /home/ubuntu/duckdns/duck.log -K -" > "/home/ubuntu/duckdns/duck.sh"
-chmod 700 "/home/ubuntu/duckdns/duck.sh"
+# Crear scripts de duckdns
+echo "
+wordpress=$wordpress
+openfire=$openfire
+token=$token
+alumno=$alumno
+# Check Nginx status on the remote server
+remote_status=\$(ssh -o StrictHostKeyChecking=no -i /home/ubuntu/clave.pem ubuntu@$nginx_secundario \"sudo systemctl is-active nginx\")
 
-echo "echo url=\"https://www.duckdns.org/update?domains=$openfire&token=$token&ip=\" | curl -k -o /home/ubuntu/duckdns/duck.log -K -" > "/home/ubuntu/duckdns/duck2.sh"
-chmod 700 "/home/ubuntu/duckdns/duck2.sh"
-# Añadir al crontab
-(crontab -l 2>/dev/null; echo "*/1 * * * * /home/ubuntu/duckdns/duck.sh >/dev/null 2>&1") | crontab -
-(crontab -l 2>/dev/null; echo "*/1 * * * * /home/ubuntu/duckdns/duck2.sh >/dev/null 2>&1") | crontab -
+# Check Nginx status on the local server
+local_status=\$(sudo systemctl is-active nginx)
+
+# Only execute DuckDNS update if Nginx is running locally and not remotely
+if [[ \"\$local_status\" == \"active\" && \"\$remote_status\" != \"active\" ]]; then
+    echo url=\"https://www.duckdns.org/update?domains=$wordpress&token=$token&ip=\" | curl -k -o /home/ubuntu/duckdns/duck.log -K -
+else
+    exit 1
+fi
+" > /home/ubuntu/duckdns/duck.sh
+chmod 700 /home/ubuntu/duckdns/duck.sh
+
+echo "
+wordpress=$wordpress
+openfire=$openfire
+token=$token
+alumno=$alumno
+# Check Nginx status on the remote server
+remote_status=\$(ssh -o StrictHostKeyChecking=no -i /home/ubuntu/clave.pem ubuntu@$nginx_secundario \"sudo systemctl is-active nginx\")
+
+# Check Nginx status on the local server
+local_status=\$(sudo systemctl is-active nginx)
+
+# Only execute DuckDNS update if Nginx is running locally and not remotely
+if [[ \"\$local_status\" == \"active\" && \"\$remote_status\" != \"active\" ]]; then
+        echo url=\"https://www.duckdns.org/update?domains=$openfire&token=$token&ip=\" | curl -k -o /home/ubuntu/duckdns/duck.log -K -
+else
+    exit 1
+fi
+" > /home/ubuntu/duckdns/duck2.sh
+chmod 700 /home/ubuntu/duckdns/duck2.sh
+
+    # Add cron jobs for dynamic DNS updates
+    (crontab -l 2>/dev/null; echo "*/1 * * * * /home/ubuntu/duckdns/duck.sh >/dev/null 2>&1") | crontab -
+    (crontab -l 2>/dev/null; echo "*/1 * * * * /home/ubuntu/duckdns/duck2.sh >/dev/null 2>&1") | crontab -
 
 sleep 120
 
