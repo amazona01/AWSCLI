@@ -97,8 +97,4 @@ sudo mysql -u root -p_Admin123 -e "USE openfire; source /home/ubuntu/openfire.sq
 sudo mysql -u root -p_Admin123 -e "CREATE USER 'openfire'@'%' IDENTIFIED BY '_Admin123';"
 sudo mysql -u root -p_Admin123 -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, ALTER ON openfire.* TO 'openfire'@'%';"
 sudo mysql -u root -p_Admin123 -e "FLUSH PRIVILEGES;"
-
-chmod +x /home/ubuntu/backups.sh
-mkdir /home/ubuntu/backups
-(crontab -l 2>/dev/null; echo "0 3 * * * /home/ubuntu/backups.sh >/dev/null 2>&1") | crontab -
 fi

@@ -206,6 +206,13 @@ resource "aws_security_group" "sg_nginx" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  
   egress {
     from_port   = 0
     to_port     = 0
@@ -740,19 +747,6 @@ resource "aws_instance" "XMPP-database-maestro" {
       bastion_private_key = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
           }
   }
-  provisioner "file" {
-    source      = "../scripts_servicios/backups.sh"  # script local
-    destination = "/home/ubuntu/backups.sh" # destino
-    connection {
-      type                = "ssh"
-      user                = "ubuntu"
-      private_key         = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
-      host                = self.private_ip
-      bastion_host        = aws_instance.nginx.public_ip
-      bastion_user        = "ubuntu"
-      bastion_private_key = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
-          }
-  }
     user_data = base64encode(templatefile("../scripts_servicios/clustersql.sh", {
     role           = "primary"
   }))
@@ -856,6 +850,19 @@ resource "aws_instance" "NAS" {
     provisioner "file" {
     source      = "./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem"
     destination = "/home/ubuntu/clave.pem"
+      connection {
+      type                = "ssh"
+      user                = "ubuntu"
+      private_key         = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+      host                = self.private_ip
+      bastion_host        = aws_instance.nginx.public_ip
+      bastion_user        = "ubuntu"
+      bastion_private_key = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+          }
+  }
+  provisioner "file" {
+    source      = "../scripts_servicios/backups.sh"
+    destination = "/home/ubuntu/backups.sh"
       connection {
       type                = "ssh"
       user                = "ubuntu"
