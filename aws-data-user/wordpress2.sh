@@ -1,3 +1,11 @@
+# =================================================================================================================================================================================
+# necesita haber hecho wordpress.sh y despues estos comandos antes de ejecutarse pero para ello necesitas el endpoint del RDS  esta automatizado para ello en el script de terraform
+#      "sudo -u www-data wp-cli core config --dbname=wordpress --dbuser=wordpress --dbpass=_Admin123 --dbhost=${aws_db_instance.MySQL_Wordpress.endpoint} --dbprefix=wp --path=/var/www/html",
+#      "sudo -u www-data wp-cli core install --url='http://nginxequipo45.duckdns.org' --title='Wordpress equipo 4' --admin_user='admin' --admin_password='_Admin123' --admin_email='admin@example.com' --path=/var/www/html",
+#      "sudo -u www-data wp-cli plugin install supportcandy --activate --path='/var/www/html'",
+#      "sudo -u www-data wp-cli plugin install user-registration --activate --path=/var/www/html",
+# =================================================================================================================================================================================
+
 sudo -u www-data wp-cli cap add "subscriber" "read" --path=/var/www/html
 sudo -u www-data wp-cli cap add "subscriber" "create_ticket" --path=/var/www/html
 sudo -u www-data wp-cli cap add "subscriber" "view_own_ticket" --path=/var/www/html
