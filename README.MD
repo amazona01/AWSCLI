@@ -62,7 +62,7 @@ El reto Mensagl tiene como objetivo la implementación de un servicio de mensaje
 
 1. Clonar el repositorio:  
    ```bash
-   git clone https://github.com/amazona01/AWSCLI
+   git clone https://github.com/amazona01/mensagl
       ```
 2. Cambiar el nombre del alumno en el script de terraform
 3. Cambiar los dominios el nombre y el token utilizados en nginx.sh
