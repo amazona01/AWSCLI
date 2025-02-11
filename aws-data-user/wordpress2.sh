@@ -26,9 +26,9 @@ sudo sed -i '1i\
     $list = explode(",", $_SERVER["HTTP_X_FORWARDED_FOR"]);\
     $_SERVER["REMOTE_ADDR"] = $list[0];\
 }\
-$_SERVER["HTTP_HOST"] = "wordpress218	.duckdns.org";\
-$_SERVER["REMOTE_ADDR"] = "wordpress218	.duckdns.org";\
-$_SERVER["SERVER_ADDR"] = "wordpress218	.duckdns.org";\
+$_SERVER["HTTP_HOST"] = "wordpress218.duckdns.org";\
+$_SERVER["REMOTE_ADDR"] = "wordpress218.duckdns.org";\
+$_SERVER["SERVER_ADDR"] = "wordpress218.duckdns.org";\
 ' /var/www/html/wp-config.php
 
 

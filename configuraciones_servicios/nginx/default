@@ -17,7 +17,7 @@ server {
 }
 server {
     listen 443 ssl default_server;
-    server_name wordpress218	.duckdns.org;
+    server_name wordpress218.duckdns.org;
     ssl_certificate     /etc/letsencrypt/live/wordpress218.duckdns.org/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/wordpress218.duckdns.org/privkey.pem;
   location / {
