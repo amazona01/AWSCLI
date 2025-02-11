@@ -35,7 +35,7 @@ sudo snap set certbot trust-plugin-with-root=ok
 sudo snap connect certbot:plugin certbot-dns-duckdns
 
 #mover configuraciones
-sudo mv /home/ubuntu/default /etc/nginx/
+sudo mv /home/ubuntu/default /etc/nginx/default
 sudo mv /home/ubuntu/nginx.conf /etc/nginx/nginx.conf
 #Restart Nginx
 sudo systemctl stop nginx
