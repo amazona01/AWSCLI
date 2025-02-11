@@ -6,18 +6,58 @@ openfire=openfire-equipo45
 token=0b4bb411-ab26-4464-8a16-0d373fa6bf9c 
 #cambiar alumno
 alumno=amazona01
+#cambiar ips de los servidores
+nginx_principal="10.218.1.10"
+nginx_secundario="10.218.1.20"
 
+chmod 600 /home/ubuntu/clave.pem
+    # crear el directorio de duckdns
 mkdir -p "/home/ubuntu/duckdns/"
 cd "/home/ubuntu/duckdns/"
 
 sudo apt update && sudo  DEBIAN_FRONTEND=noninteractive apt install nginx -y
 
-# Crear script para actualizar la ip dinamicamente
-echo "echo url=\"https://www.duckdns.org/update?domains=$wordpress&token=$token&ip=\" | curl -k -o /home/ubuntu/duckdns/duck.log -K -" > "/home/ubuntu/duckdns/duck.sh"
-chmod 700 "/home/ubuntu/duckdns/duck.sh"
+# Crear scripts de duckdns
+echo "
+wordpress=$wordpress
+openfire=$openfire
+token=$token 
+alumno=$alumno
+# Check Nginx status on the remote server
+remote_status=\$(ssh -o StrictHostKeyChecking=no -i /home/ubuntu/clave.pem ubuntu@$nginx_secundario \"sudo systemctl is-active nginx\")
 
-echo "echo url=\"https://www.duckdns.org/update?domains=$openfire&token=$token&ip=\" | curl -k -o /home/ubuntu/duckdns/duck.log -K -" > "/home/ubuntu/duckdns/duck2.sh"
-chmod 700 "/home/ubuntu/duckdns/duck2.sh"
+# Check Nginx status on the local server
+local_status=\$(sudo systemctl is-active nginx)
+
+# Only execute DuckDNS update if Nginx is running locally and not remotely
+if [[ \"\$local_status\" == \"active\" && \"\$remote_status\" != \"active\" ]]; then
+    echo url=\"https://www.duckdns.org/update?domains=$wordpress&token=$token&ip=\" | curl -k -o /home/ubuntu/duckdns/duck.log -K -
+else
+    exit 1
+fi
+" > /home/ubuntu/duckdns/duck.sh
+chmod 700 /home/ubuntu/duckdns/duck.sh
+
+echo "
+wordpress=$wordpress
+openfire=$openfire
+token=$token 
+alumno=$alumno
+# Check Nginx status on the remote server
+remote_status=\$(ssh -o StrictHostKeyChecking=no -i /home/ubuntu/clave.pem ubuntu@$nginx_secundario \"sudo systemctl is-active nginx\")
+
+# Check Nginx status on the local server
+local_status=\$(sudo systemctl is-active nginx)
+
+# Only execute DuckDNS update if Nginx is running locally and not remotely
+if [[ \"\$local_status\" == \"active\" && \"\$remote_status\" != \"active\" ]]; then
+        echo url=\"https://www.duckdns.org/update?domains=$openfire&token=$token&ip=\" | curl -k -o /home/ubuntu/duckdns/duck.log -K -
+else
+    exit 1
+fi
+" > /home/ubuntu/duckdns/duck2.sh
+chmod 700 /home/ubuntu/duckdns/duck2.sh
+
 # Añadir al crontab
 (crontab -l 2>/dev/null; echo "*/1 * * * * /home/ubuntu/duckdns/duck.sh >/dev/null 2>&1") | crontab -
 (crontab -l 2>/dev/null; echo "*/1 * * * * /home/ubuntu/duckdns/duck2.sh >/dev/null 2>&1") | crontab -
@@ -59,5 +99,28 @@ sudo chmod -R 770 /home/ubuntu
 
 sudo systemctl start nginx
 
-#Borrar
-rm -rf mensagl
+
+# añade un cronjob para comprobar si el servicio nginx en el servidor secundario esta activo e iniciar el servicio en este si no lo esta
+echo "
+# Check Nginx status on the remote server
+ssh -o StrictHostKeyChecking=no -i /home/ubuntu/clave.pem ubuntu@$nginx_secundario 'sudo systemctl is-active nginx' > remote_status.txt
+
+# Check Nginx status on the local server
+local_status=\$(sudo systemctl is-active nginx)
+
+# Read the remote status
+if [[ -f remote_status.txt ]]; then
+    remote_status=\$(cat remote_status.txt)
+fi
+
+# If Nginx is inactive on both servers, start it locally
+if [[ \"\$remote_status\" != \"active\" && \"\$local_status\" != \"active\" ]]; then
+    sudo systemctl start nginx
+else
+    exit 1
+fi
+" > /home/ubuntu/fallback.sh
+chmod +x /home/ubuntu/fallback.sh
+
+(crontab -l 2>/dev/null; echo "*/1 * * * * /home/ubuntu/fallback.sh") | crontab -
+

@@ -210,7 +210,7 @@ resource "aws_security_group" "sg_nginx" {
     from_port   = 3306
     to_port     = 3306
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["10.218.0.0/16"]
   }
   
   egress {
@@ -517,7 +517,87 @@ resource "aws_instance" "nginx" {
     aws_vpc.main,
     aws_subnet.public1,
     aws_security_group.sg_nginx,
+    aws_security_group.sg_xmpp,
     aws_key_pair.ssh_key
+  ]
+}
+
+resource "aws_instance" "nginx_fallback" {
+  ami                    = "ami-053b0d53c279acc90"
+  instance_type          = "t2.micro"
+  subnet_id              = aws_subnet.public1.id 
+  key_name               = aws_key_pair.ssh_key.key_name
+  vpc_security_group_ids = [aws_security_group.sg_nginx.id, aws_security_group.sg_xmpp.id]
+  associate_public_ip_address = true
+  private_ip             = "10.218.1.20"
+  
+  provisioner "file" {
+    source      = "../scripts_servicios/nginxfallback.sh"  
+    destination = "/home/ubuntu/nginxfallback.sh"          
+    connection {
+      type                = "ssh"
+      user                = "ubuntu"
+      private_key         = file(".ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+      host                = self.public_ip
+    }
+  }
+
+  provisioner "file" {
+    source      = ".ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem"
+    destination = "/home/ubuntu/clave.pem"          
+    connection {
+      type                = "ssh"
+      user                = "ubuntu"
+      private_key         = file(".ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+      host                = self.public_ip
+    }
+  }
+
+  provisioner "file" {
+    source      = "../configuraciones_servicios/nginx/default"  
+    destination = "/home/ubuntu/default"          
+    connection {
+      type                = "ssh"
+      user                = "ubuntu"
+      private_key         = file(".ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+      host                = self.public_ip
+    }
+  }
+
+  provisioner "file" {
+    source      = "../configuraciones_servicios/nginx/nginx.conf"  
+    destination = "/home/ubuntu/nginx.conf"          
+    connection {
+      type                = "ssh"
+      user                = "ubuntu"
+      private_key         = file(".ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+      host                = self.public_ip
+    }
+  }
+
+  provisioner "remote-exec" {
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = file(".ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+      host        = self.public_ip
+    }
+    inline = [
+      "chmod +x /home/ubuntu/nginxfallback.sh",
+      "sudo /home/ubuntu/nginxfallback.sh"
+    ]
+  }
+  tags = {
+    Name = "Nginx_Fallback"
+  }
+
+  depends_on = [
+    aws_vpc.main,
+    aws_subnet.public1,
+    aws_security_group.sg_nginx,
+    aws_security_group.sg_xmpp,
+    aws_key_pair.ssh_key,
+    aws_instance.nginx
   ]
 }
 
@@ -747,6 +827,19 @@ resource "aws_instance" "XMPP-database-maestro" {
       bastion_private_key = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
           }
   }
+    provisioner "file" {
+    source      = "../scripts_servicios/clustersql.sh"  # script local
+    destination = "/home/ubuntu/clustersql.sh" # destino
+    connection {
+      type                = "ssh"
+      user                = "ubuntu"
+      private_key         = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+      host                = self.private_ip
+      bastion_host        = aws_instance.nginx.public_ip
+      bastion_user        = "ubuntu"
+      bastion_private_key = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+          }
+  }
     user_data = base64encode(templatefile("../scripts_servicios/clustersql.sh", {
     role           = "primary"
   }))
@@ -787,7 +880,19 @@ resource "aws_instance" "XMPP-database-replica" {
       bastion_private_key = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
           }
   }
-    
+    provisioner "file" {
+    source      = "../scripts_servicios/clustersql.sh"  # script local
+    destination = "/home/ubuntu/clustersql.sh" # destino
+    connection {
+      type                = "ssh"
+      user                = "ubuntu"
+      private_key         = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+      host                = self.private_ip
+      bastion_host        = aws_instance.nginx.public_ip
+      bastion_user        = "ubuntu"
+      bastion_private_key = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
+          }
+  }
     user_data = base64encode(templatefile("../scripts_servicios/clustersql.sh", {
     role           = "secondary"
   }))
