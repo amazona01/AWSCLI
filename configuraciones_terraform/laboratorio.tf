@@ -680,9 +680,11 @@ resource "aws_instance" "Wordpress" {
       "sudo ./wordpress.sh",
       "wait 180",
       "sudo -u www-data wp-cli core config --dbname=wordpress --dbuser=wordpress --dbpass=_Admin123 --dbhost=${aws_db_instance.MySQL_Wordpress.endpoint} --dbprefix=wp --path=/var/www/html",
-      "sudo -u www-data wp-cli core install --url='http://wordpress218.duckdns.org' --title='Wordpress equipo 4' --admin_user='admin' --admin_password='_Admin123' --admin_email='admin@example.com' --path=/var/www/html",
+      "sudo -u www-data wp-cli core install --url='http://wordpress218.duckdns.org' --title='Wordpress equipo 4' --admin_user='equipo4' --admin_password='_Admin123' --admin_email='admin@example.com' --path=/var/www/html",
       "sudo -u www-data wp-cli plugin install supportcandy --activate --path='/var/www/html'",
       "sudo -u www-data wp-cli plugin install user-registration --activate --path=/var/www/html",
+      "sudo -u www-data wp-cli plugin install wps-hide-login --activate",
+      "sudo -u www-data wp-cli option update wps_hide_login_url equipo4-admin",
       "sudo chmod +x wordpress2.sh",
       "sudo ./wordpress2.sh"
     ]
@@ -736,8 +738,8 @@ resource "aws_instance" "Wordpress2" {
           }
   }
   provisioner "file" {
-    source      = "../scripts_servicios/wordpress2.sh"  # script local
-    destination = "/home/ubuntu/wordpress2.sh" # destino
+    source      = "../scripts_servicios/wordpressbackup.sh"  # script local
+    destination = "/home/ubuntu/wordpressbackup.sh" # destino
     connection {
       type                = "ssh"
       user                = "ubuntu"  
@@ -781,18 +783,19 @@ resource "aws_instance" "Wordpress2" {
       "sudo -u www-data wp-cli core install --url='http://wordpress218.duckdns.org' --title='Wordpress equipo 4' --admin_user='admin' --admin_password='_Admin123' --admin_email='admin@example.com' --path=/var/www/html",
       "sudo -u www-data wp-cli plugin install supportcandy --activate --path='/var/www/html'",
       "sudo -u www-data wp-cli plugin install user-registration --activate --path=/var/www/html",
-      "sudo chmod +x wordpress2.sh",
-      "sudo ./wordpress2.sh"
+      "sudo -u www-data wp-cli plugin install wps-hide-login --activate",
+      "sudo -u www-data wp-cli option update wps_hide_login_url equipo4-admin",
+      "sudo chmod +x wordpressbackup.sh",
+      "sudo ./wordpressbackup.sh"
     ]
 }
-
   tags = {
     Name = "WORDPRESS-2"
   }
   depends_on = [
     aws_vpc.main,
     aws_subnet.private2,
-    aws_instance.wordpress,
+    aws_instance.Wordpress,
     aws_security_group.sg_cms,
     aws_instance.nginx,
     aws_key_pair.ssh_key,
