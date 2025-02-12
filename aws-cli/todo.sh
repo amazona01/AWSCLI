@@ -168,6 +168,7 @@ NGINX_FALLBACK_INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --count 1 
 aws ec2 create-tags --resources $NGINX_FALLBACK_INSTANCE_ID --tags Key=Name,Value="Nginx_Fallback"
 
 # Wait for the instance to be in running state
+aws ec2 wait instance-running --instance-ids $NGINX_INSTANCE_ID
 aws ec2 wait instance-running --instance-ids $NGINX_FALLBACK_INSTANCE_ID
 
 # Get the public IP of the instance
@@ -216,6 +217,7 @@ WORDPRESS_INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --count 1 --ins
 aws ec2 create-tags --resources $WORDPRESS_INSTANCE_ID --tags Key=Name,Value="WORDPRESS"
 
 # Wait for the instance to be in running state
+aws ec2 wait instance-running --instance-ids $NGINX_INSTANCE_ID
 aws ec2 wait instance-running --instance-ids $WORDPRESS_INSTANCE_ID
 
 # Get the private IP of the instance
@@ -250,6 +252,7 @@ WORDPRESS_FALLBACK_INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --coun
 aws ec2 create-tags --resources $WORDPRESS_FALLBACK_INSTANCE_ID --tags Key=Name,Value="WORDPRESS-2"
 
 # Wait for the instance to be in running state
+aws ec2 wait instance-running --instance-ids $NGINX_INSTANCE_ID
 aws ec2 wait instance-running --instance-ids $WORDPRESS_FALLBACK_INSTANCE_ID
 
 # Get the private IP of the instance
@@ -284,6 +287,7 @@ XMPP_INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --count 1 --instance
 aws ec2 create-tags --resources $XMPP_INSTANCE_ID --tags Key=Name,Value="OPENFIRE"
 
 # Wait for the instance to be in running state
+aws ec2 wait instance-running --instance-ids $NGINX_INSTANCE_ID
 aws ec2 wait instance-running --instance-ids $XMPP_INSTANCE_ID
 
 # Get the private IP of the instance
@@ -302,6 +306,7 @@ XMPP_DB_MASTER_INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --count 1 
 aws ec2 create-tags --resources $XMPP_DB_MASTER_INSTANCE_ID --tags Key=Name,Value="Mysql_Openfire_maestro"
 
 # Wait for the instance to be in running state
+aws ec2 wait instance-running --instance-ids $NGINX_INSTANCE_ID
 aws ec2 wait instance-running --instance-ids $XMPP_DB_MASTER_INSTANCE_ID
 
 # Get the private IP of the instance
@@ -324,6 +329,7 @@ XMPP_DB_REPLICA_INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --count 1
 aws ec2 create-tags --resources $XMPP_DB_REPLICA_INSTANCE_ID --tags Key=Name,Value="Mysql_Openfire_esclavo"
 
 # Wait for the instance to be in running state
+aws ec2 wait instance-running --instance-ids $NGINX_INSTANCE_ID
 aws ec2 wait instance-running --instance-ids $XMPP_DB_REPLICA_INSTANCE_ID
 
 # Get the private IP of the instance
@@ -354,6 +360,7 @@ NAS_INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --count 1 --instance-
 aws ec2 create-tags --resources $NAS_INSTANCE_ID --tags Key=Name,Value="NAS"
 
 # Wait for the instance to be in running state
+aws ec2 wait instance-running --instance-ids $NGINX_INSTANCE_ID
 aws ec2 wait instance-running --instance-ids $NAS_INSTANCE_ID
 
 # Adjuntar Volúmenes EBS al servidor NAS
