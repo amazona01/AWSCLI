@@ -10,6 +10,13 @@ PRIVATE_KEY_PATH="./.ssh/ssh-mensagl-2025-$NOMBRE_ALUMNO.pem"
 RED="218"
 
 # ============================
+# Archivo de log
+# ============================
+LOG_FILE="laboratorio.log"
+exec > "$LOG_FILE" 2>&1
+
+
+# ============================
 # Claves SSH
 # ============================
 PEM_KEY=$(aws ec2 create-key-pair \
@@ -175,6 +182,34 @@ scp -i $PRIVATE_KEY_PATH ../configuraciones_servicios/nginx/nginx.conf ubuntu@$N
 ssh -i $PRIVATE_KEY_PATH ubuntu@$NGINX_FALLBACK_PUBLIC_IP "chmod +x /home/ubuntu/nginxfallback.sh && sudo /home/ubuntu/nginxfallback.sh"
 
 # ============================
+# Instancia RDS
+# ============================
+aws rds create-db-instance \
+    --db-instance-identifier wordpress-db \
+    --db-instance-class db.t2.micro \
+    --engine mysql \
+    --master-username admin \
+    --master-user-password _admin123 \
+    --allocated-storage 20 \
+    --vpc-security-group-ids $SG_MYSQL_ID \
+    --db-subnet-group-name mydbsubnetgroup \
+    --availability-zone ${REGION}a \
+    --backup-retention-period 30 \
+    --no-multi-az \
+    --publicly-accessible \
+    --storage-type gp2 \
+    --tags Key=Name,Value="wordpress-db"
+
+
+# ============================
+# Clave KMS
+# ============================
+KMS_KEY_ID=$(aws kms create-key --query 'KeyMetadata.KeyId' --output text)
+aws kms create-alias --alias-name alias/wordpress-key --target-key-id $KMS_KEY_ID
+aws kms enable-key-rotation --key-id $KMS_KEY_ID
+aws kms tag-resource --key-id $KMS_KEY_ID --tags TagKey=Name,TagValue="wordpress-key"
+
+# ============================
 # Wordpress maestro
 # ============================
 WORDPRESS_INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --count 1 --instance-type $INSTANCE_TYPE --key-name $KEY_NAME --subnet-id $SUBNET_PRIVATE2_ID --security-group-ids $SG_CMS_ID --private-ip-address 10.218.3.100 --query 'Instances[0].InstanceId' --output text)
@@ -188,11 +223,25 @@ WORDPRESS_PRIVATE_IP=$(aws ec2 describe-instances --instance-ids $WORDPRESS_INST
 
 # Copy scripts and configuration files to the instance via bastion host (Nginx)
 scp -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/wordpress.sh ubuntu@$WORDPRESS_PRIVATE_IP:/home/ubuntu/wordpress.sh
+scp -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/wordpress2.sh ubuntu@$WORDPRESS_PRIVATE_IP:/home/ubuntu/wordpress2.sh
 scp -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" $PRIVATE_KEY_PATH ubuntu@$WORDPRESS_PRIVATE_IP:/home/ubuntu/clave.pem
 scp -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ../configuraciones_servicios/wordpress/default-ssl.conf ubuntu@$WORDPRESS_PRIVATE_IP:/home/ubuntu/default-ssl.conf
 
-# Execute the script on the instance via bastion host (Nginx)
-ssh -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ubuntu@$WORDPRESS_PRIVATE_IP "chmod +x /home/ubuntu/wordpress.sh && sudo /home/ubuntu/wordpress.sh"
+# Ejecutar comandos para WordPress
+ssh -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ubuntu@$WORDPRESS_PRIVATE_IP << 'EOF'
+cd ~
+sudo chmod +x wordpress.sh
+sudo ./wordpress.sh
+wait 180
+sudo -u www-data wp-cli core config --dbname=wordpress --dbuser=wordpress --dbpass=_Admin123 --dbhost=${aws_db_instance.MySQL_Wordpress.endpoint} --dbprefix=wp --path=/var/www/html
+sudo -u www-data wp-cli core install --url='http://wordpress218.duckdns.org' --title='Wordpress equipo 4' --admin_user='equipo4' --admin_password='_Admin123' --admin_email='admin@example.com' --path=/var/www/html
+sudo -u www-data wp-cli plugin install supportcandy --activate --path='/var/www/html'
+sudo -u www-data wp-cli plugin install user-registration --activate --path='/var/www/html'
+sudo -u www-data wp-cli plugin install wps-hide-login --activate --path='/var/www/html'
+sudo -u www-data wp-cli option update wps_hide_login_url equipo4-admin --path='/var/www/html'
+sudo chmod +x wordpress2.sh
+sudo ./wordpress2.sh
+EOF
 
 # ============================
 # Wordpress esclavo
@@ -207,41 +256,26 @@ aws ec2 wait instance-running --instance-ids $WORDPRESS_FALLBACK_INSTANCE_ID
 WORDPRESS_FALLBACK_PRIVATE_IP=$(aws ec2 describe-instances --instance-ids $WORDPRESS_FALLBACK_INSTANCE_ID --query 'Reservations[0].Instances[0].PrivateIpAddress' --output text)
 
 # Copy scripts and configuration files to the instance via bastion host (Nginx)
+scp -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/wordpress.sh ubuntu@$WORDPRESS_FALLBACK_PRIVATE_IP:/home/ubuntu/wordpress.sh
 scp -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/wordpressfallback.sh ubuntu@$WORDPRESS_FALLBACK_PRIVATE_IP:/home/ubuntu/wordpressfallback.sh
 scp -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" $PRIVATE_KEY_PATH ubuntu@$WORDPRESS_FALLBACK_PRIVATE_IP:/home/ubuntu/clave.pem
 scp -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ../configuraciones_servicios/wordpress/default-ssl.conf ubuntu@$WORDPRESS_FALLBACK_PRIVATE_IP:/home/ubuntu/default-ssl.conf
 
 # Execute the script on the instance via bastion host (Nginx)
-ssh -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ubuntu@$WORDPRESS_FALLBACK_PRIVATE_IP "chmod +x /home/ubuntu/wordpressfallback.sh && sudo /home/ubuntu/wordpressfallback.sh"
-
-
-# ============================
-# Instancia RDS
-# ============================
-aws rds create-db-instance \
-    --db-instance-identifier wordpress-db \
-    --db-instance-class db.t2.micro \
-    --engine mysql \
-    --master-username admin \
-    --master-user-password admin123 \
-    --allocated-storage 20 \
-    --vpc-security-group-ids $SG_MYSQL_ID \
-    --db-subnet-group-name mydbsubnetgroup \
-    --availability-zone ${REGION}a \
-    --backup-retention-period 7 \
-    --no-multi-az \
-    --publicly-accessible \
-    --storage-type gp2 \
-    --tags Key=Name,Value="wordpress-db"
-
-
-# ============================
-# Clave KMS
-# ============================
-KMS_KEY_ID=$(aws kms create-key --query 'KeyMetadata.KeyId' --output text)
-aws kms create-alias --alias-name alias/wordpress-key --target-key-id $KMS_KEY_ID
-aws kms enable-key-rotation --key-id $KMS_KEY_ID
-aws kms tag-resource --key-id $KMS_KEY_ID --tags TagKey=Name,TagValue="wordpress-key"
+ssh -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ubuntu@$WORDPRESS_FALLBACK_PRIVATE_IP << 'EOF'
+cd ~
+sudo chmod +x wordpress.sh
+sudo ./wordpress.sh
+wait 180
+sudo -u www-data wp-cli core config --dbname=wordpress --dbuser=wordpress --dbpass=_Admin123 --dbhost=${aws_db_instance.MySQL_Wordpress.endpoint} --dbprefix=wp --path=/var/www/html
+sudo -u www-data wp-cli core install --url='http://wordpress218.duckdns.org' --title='Wordpress equipo 4' --admin_user='admin' --admin_password='_Admin123' --admin_email='admin@example.com' --path=/var/www/html
+sudo -u www-data wp-cli plugin install supportcandy --activate --path='/var/www/html'
+sudo -u www-data wp-cli plugin install user-registration --activate --path='/var/www/html'
+sudo -u www-data wp-cli plugin install wps-hide-login --activate --path='/var/www/html'
+sudo -u www-data wp-cli option update wps_hide_login_url equipo4-admin --path='/var/www/html'
+sudo chmod +x wordpressbackup.sh
+sudo ./wordpressbackup.sh
+EOF
 
 # ============================
 # SERVIDOR XMPP OPENFIRE
@@ -278,7 +312,10 @@ scp -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubun
 scp -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/clustersql.sh ubuntu@$XMPP_DB_MASTER_PRIVATE_IP:/home/ubuntu/clustersql.sh
 
 # Execute the script on the instance via bastion host (Nginx)
-ssh -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ubuntu@$XMPP_DB_MASTER_PRIVATE_IP "chmod +x /home/ubuntu/clustersql.sh && sudo /home/ubuntu/clustersql.sh"
+ssh -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ubuntu@$XMPP_DB_MASTER_PRIVATE_IP << 'EOF'
+"sed -i 's/role=\"${role}\"/role=\"primary\"/' /home/ubuntu/clustersql.sh"
+chmod +x /home/ubuntu/clustersql.sh && sudo /home/ubuntu/clustersql.sh"
+EOF
 
 # ============================
 # Replica de base de datos de openfire
@@ -296,7 +333,11 @@ XMPP_DB_REPLICA_PRIVATE_IP=$(aws ec2 describe-instances --instance-ids $XMPP_DB_
 scp -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/clustersql.sh ubuntu@$XMPP_DB_REPLICA_PRIVATE_IP:/home/ubuntu/clustersql.sh
 
 # Execute the script on the instance via bastion host (Nginx)
-ssh -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ubuntu@$XMPP_DB_REPLICA_PRIVATE_IP "chmod +x /home/ubuntu/clustersql.sh && sudo /home/ubuntu/clustersql.sh"
+ssh -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ubuntu@$XMPP_DB_REPLICA_PRIVATE_IP<< 'EOF'
+"sed -i 's/role=\"${role}\"/role=\"secondary\"/' /home/ubuntu/clustersql.sh"
+chmod +x /home/ubuntu/clustersql.sh && sudo /home/ubuntu/clustersql.sh"
+EOF
+
 
 # ============================
 # Crear Volúmenes EBS
