@@ -43,6 +43,7 @@ provider "aws" {
   region = "us-east-1"
 }
 
+
 # ============================
 # VPC
 # ============================
@@ -708,9 +709,6 @@ resource "aws_db_subnet_group" "cms_subnet_group" {
     Name = "mysql-subnet-group"
   }
 }
-
-# Instancia RDS para WORDPRESS
-
 resource "aws_db_instance" "MySQL_Wordpress" {
   allocated_storage    = 10
   storage_type         = "gp2"
@@ -725,15 +723,49 @@ resource "aws_db_instance" "MySQL_Wordpress" {
   availability_zone    = "us-east-1b"  
   db_subnet_group_name = aws_db_subnet_group.cms_subnet_group.name
   vpc_security_group_ids = [aws_security_group.sg_mysql.id]
-  skip_final_snapshot  = true  # PRUEBAS LUEGO ELIMINAR
+  skip_final_snapshot  = true 
+  backup_retention_period = 30 # mantener los backups por 30 dias
   tags = {
     Name = "MySQL_Wordpress"
   }
-  # identificador a la instancia de la base de datos
-  identifier = "mysql-wordpress" 
-  depends_on = [aws_db_subnet_group.cms_subnet_group]
+  identifier = "mysql-wordpress"
+  kms_key_id = aws_kms_key.default.arn   # Aquí se usa la ARN en lugar del ID
+  storage_encrypted = true   # Habilitar la encriptación del almacenamiento
+  depends_on = [aws_db_subnet_group.cms_subnet_group, aws_kms_key.default]
 }
 
+
+#
+# ============================
+# Backups programados de RDS 
+# ============================
+# 
+# Da error pero los backups quedan configurados puede que no se necesite
+#starting RDS Instance Automated Backups Replication (arn:aws:rds:us-east-1:327540127980:db:mysql-wordpress): operation error RDS: StartDBInstanceAutomatedBackupsReplication, https response error StatusCode: 400, RequestID: 6d871039-3472-4770-b654-004adc8c3c55, api error InvalidParameterValue: Feature is not available in region us-east-1.
+# 
+# 
+# resource "aws_db_instance_automated_backups_replication" "default" {
+#   source_db_instance_arn = aws_db_instance.MySQL_Wordpress.arn
+#   kms_key_id             = aws_kms_key.default.arn
+#   retention_period       = 14
+# }
+
+
+# ============================
+# clave KMS para encriptar base de datos de RDS 
+# ============================
+
+resource "aws_kms_key" "default" {
+  description = "clave de encriptacion para RDS"
+  tags = {
+    Name = "rds-backup-key-${var.nombre_alumno}"
+  }
+}
+
+resource "aws_kms_alias" "rds_backup_key_alias" {
+  name          = "alias/rds-backup-key-${var.nombre_alumno}"
+  target_key_id = aws_kms_key.default.id  
+}
 
 
 
@@ -789,7 +821,6 @@ resource "aws_instance" "XMPP-openfire" {
     aws_key_pair.ssh_key
   ]
 }
-
 
 #Base de datos maestro openfire 
 
