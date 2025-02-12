@@ -15,6 +15,9 @@ mkdir -p "/home/ubuntu/duckdns/"
 cd "/home/ubuntu/duckdns/"
 
 sudo apt update && sudo  DEBIAN_FRONTEND=noninteractive apt install nginx -y
+echo "url=https://www.duckdns.org/update?domains=$wordpress&token=$token&ip=" | curl -k -o /home/ubuntu/duckdns/duck.log -K -
+echo "url=https://www.duckdns.org/update?domains=$openfire&token=$token&ip=" | curl -k -o /home/ubuntu/duckdns/duck.log -K -
+
 
 # Crear scripts de duckdns
 echo "
