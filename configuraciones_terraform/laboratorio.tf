@@ -427,26 +427,6 @@ resource "aws_security_group" "sg_xmpp" {
   }
 }
 
-resource "aws_security_group" "MySQL_sg" {
-  name        = "MySQL_sg"
-  description = "Trafico a mysql"
-
-  ingress {
-    from_port   = 3306
-    to_port     = 3306
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-
 # ============================
 # Instancias
 # ============================
