@@ -143,7 +143,7 @@ aws ec2 create-tags --resources $SG_XMPP_ID --tags Key=Name,Value="sg_xmpp"
 # ============================
 # Nginx principal
 # ============================
-NGINX_INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --count 1 --instance-type $INSTANCE_TYPE --key-name $KEY_NAME --subnet-id $SUBNET_PUBLIC1_ID --security-group-ids $SG_NGINX_ID $SG_XMPP_ID --associate-public-ip-address --private-ip-address 10.218.1.10 --query 'Instances[0].InstanceId' --output text)
+NGINX_INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --count 1 --instance-type $INSTANCE_TYPE --key-name $KEY_NAME --subnet-id $SUBNET_PUBLIC1_ID --security-group-ids $SG_NGINX_ID $SG_XMPP_ID --associate-public-ip-address --private-ip-address 10.$RED.1.10 --query 'Instances[0].InstanceId' --output text)
 aws ec2 create-tags --resources $NGINX_INSTANCE_ID --tags Key=Name,Value="Nginx"
 
 # Wait for the instance to be in running state
@@ -164,7 +164,7 @@ ssh -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP "chmod +x /home/ubuntu/nginx.sh
 # ============================
 # Nginx secundario
 # ============================
-NGINX_FALLBACK_INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --count 1 --instance-type $INSTANCE_TYPE --key-name $KEY_NAME --subnet-id $SUBNET_PUBLIC1_ID --security-group-ids $SG_NGINX_ID $SG_XMPP_ID --associate-public-ip-address --private-ip-address 10.218.1.20 --query 'Instances[0].InstanceId' --output text)
+NGINX_FALLBACK_INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --count 1 --instance-type $INSTANCE_TYPE --key-name $KEY_NAME --subnet-id $SUBNET_PUBLIC1_ID --security-group-ids $SG_NGINX_ID $SG_XMPP_ID --associate-public-ip-address --private-ip-address 10.$RED.1.20 --query 'Instances[0].InstanceId' --output text)
 aws ec2 create-tags --resources $NGINX_FALLBACK_INSTANCE_ID --tags Key=Name,Value="Nginx_Fallback"
 
 # Wait for the instance to be in running state
@@ -212,7 +212,7 @@ aws kms tag-resource --key-id $KMS_KEY_ID --tags TagKey=Name,TagValue="wordpress
 # ============================
 # Wordpress maestro
 # ============================
-WORDPRESS_INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --count 1 --instance-type $INSTANCE_TYPE --key-name $KEY_NAME --subnet-id $SUBNET_PRIVATE2_ID --security-group-ids $SG_CMS_ID --private-ip-address 10.218.3.100 --query 'Instances[0].InstanceId' --output text)
+WORDPRESS_INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --count 1 --instance-type $INSTANCE_TYPE --key-name $KEY_NAME --subnet-id $SUBNET_PRIVATE2_ID --security-group-ids $SG_CMS_ID --private-ip-address 10.$RED.3.100 --query 'Instances[0].InstanceId' --output text)
 aws ec2 create-tags --resources $WORDPRESS_INSTANCE_ID --tags Key=Name,Value="WORDPRESS"
 
 # Wait for the instance to be in running state
@@ -246,7 +246,7 @@ EOF
 # ============================
 # Wordpress esclavo
 # ============================
-WORDPRESS_FALLBACK_INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --count 1 --instance-type $INSTANCE_TYPE --key-name $KEY_NAME --subnet-id $SUBNET_PRIVATE2_ID --security-group-ids $SG_CMS_ID --private-ip-address 10.218.3.101 --query 'Instances[0].InstanceId' --output text)
+WORDPRESS_FALLBACK_INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --count 1 --instance-type $INSTANCE_TYPE --key-name $KEY_NAME --subnet-id $SUBNET_PRIVATE2_ID --security-group-ids $SG_CMS_ID --private-ip-address 10.$RED.3.101 --query 'Instances[0].InstanceId' --output text)
 aws ec2 create-tags --resources $WORDPRESS_FALLBACK_INSTANCE_ID --tags Key=Name,Value="WORDPRESS-2"
 
 # Wait for the instance to be in running state
@@ -280,7 +280,7 @@ EOF
 # ============================
 # SERVIDOR XMPP OPENFIRE
 # ============================
-XMPP_INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --count 1 --instance-type $INSTANCE_TYPE --key-name $KEY_NAME --subnet-id $SUBNET_PRIVATE1_ID --security-group-ids $SG_XMPP_ID --private-ip-address 10.218.2.100 --query 'Instances[0].InstanceId' --output text)
+XMPP_INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --count 1 --instance-type $INSTANCE_TYPE --key-name $KEY_NAME --subnet-id $SUBNET_PRIVATE1_ID --security-group-ids $SG_XMPP_ID --private-ip-address 10.$RED.2.100 --query 'Instances[0].InstanceId' --output text)
 aws ec2 create-tags --resources $XMPP_INSTANCE_ID --tags Key=Name,Value="OPENFIRE"
 
 # Wait for the instance to be in running state
@@ -298,7 +298,7 @@ ssh -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubun
 # ============================
 # Base de datos maestro openfire
 # ============================
-XMPP_DB_MASTER_INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --count 1 --instance-type $INSTANCE_TYPE --key-name $KEY_NAME --subnet-id $SUBNET_PRIVATE1_ID --security-group-ids $SG_MYSQL_ID --private-ip-address 10.218.2.200 --query 'Instances[0].InstanceId' --output text)
+XMPP_DB_MASTER_INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --count 1 --instance-type $INSTANCE_TYPE --key-name $KEY_NAME --subnet-id $SUBNET_PRIVATE1_ID --security-group-ids $SG_MYSQL_ID --private-ip-address 10.$RED.2.200 --query 'Instances[0].InstanceId' --output text)
 aws ec2 create-tags --resources $XMPP_DB_MASTER_INSTANCE_ID --tags Key=Name,Value="Mysql_Openfire_maestro"
 
 # Wait for the instance to be in running state
@@ -320,7 +320,7 @@ EOF
 # ============================
 # Replica de base de datos de openfire
 # ============================
-XMPP_DB_REPLICA_INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --count 1 --instance-type $INSTANCE_TYPE --key-name $KEY_NAME --subnet-id $SUBNET_PRIVATE1_ID --security-group-ids $SG_MYSQL_ID --private-ip-address 10.218.2.201 --query 'Instances[0].InstanceId' --output text)
+XMPP_DB_REPLICA_INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --count 1 --instance-type $INSTANCE_TYPE --key-name $KEY_NAME --subnet-id $SUBNET_PRIVATE1_ID --security-group-ids $SG_MYSQL_ID --private-ip-address 10.$RED.2.201 --query 'Instances[0].InstanceId' --output text)
 aws ec2 create-tags --resources $XMPP_DB_REPLICA_INSTANCE_ID --tags Key=Name,Value="Mysql_Openfire_esclavo"
 
 # Wait for the instance to be in running state
@@ -350,7 +350,7 @@ VOLUME2_ID=$(aws ec2 create-volume --availability-zone ${REGION}a --size 20 --ta
 # Servidor NAS 
 # ============================
 
-NAS_INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --count 1 --instance-type $INSTANCE_TYPE --key-name $KEY_NAME --subnet-id $SUBNET_PRIVATE1_ID --security-group-ids $SG_NAS_ID --associate-public-ip-address --private-ip-address 10.218.2.150 --query 'Instances[0].InstanceId' --output text)
+NAS_INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --count 1 --instance-type $INSTANCE_TYPE --key-name $KEY_NAME --subnet-id $SUBNET_PRIVATE1_ID --security-group-ids $SG_NAS_ID --associate-public-ip-address --private-ip-address 10.$RED.2.150 --query 'Instances[0].InstanceId' --output text)
 aws ec2 create-tags --resources $NAS_INSTANCE_ID --tags Key=Name,Value="NAS"
 
 # Wait for the instance to be in running state
