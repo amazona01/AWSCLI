@@ -6,6 +6,9 @@ openfire=openfire218
 token=0b4bb411-ab26-4464-8a16-0d373fa6bf9c
 #cambiar alumno
 alumno=amazona01
+#cambiar ips de los servidores
+nginx_principal="10.218.1.10"
+nginx_secundario="10.218.1.20"
 
 chmod 600 clave.pem
 mkdir -p "/home/ubuntu/duckdns/"
@@ -15,6 +18,7 @@ sudo apt update && sudo  DEBIAN_FRONTEND=noninteractive apt install nginx -y
 
 # Crear scripts de duckdns
 echo "
+#!/bin/bash
 wordpress=$wordpress
 openfire=$openfire
 token=$token
@@ -35,6 +39,7 @@ fi
 chmod 700 /home/ubuntu/duckdns/duck.sh
 
 echo "
+#!bin/bash
 wordpress=$wordpress
 openfire=$openfire
 token=$token
@@ -129,6 +134,7 @@ sudo chmod -R 770 /home/ubuntu
 sudo systemctl start nginx
 
 echo "
+#!/bin/bash
 # Check Nginx status on the remote server
 ssh -o StrictHostKeyChecking=no -i /home/ubuntu/clave.pem ubuntu@$nginx_secundario 'sudo systemctl is-active nginx' > remote_status.txt
 

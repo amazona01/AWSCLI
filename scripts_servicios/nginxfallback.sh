@@ -33,6 +33,7 @@ chmod 600 /home/ubuntu/clave.pem
 
 # Crear scripts de duckdns
 echo "
+#!/bin/bash
 wordpress=$wordpress
 openfire=$openfire
 token=$token
@@ -53,6 +54,7 @@ fi
 chmod 700 /home/ubuntu/duckdns/duck.sh
 
 echo "
+#!/bin/bash
 wordpress=$wordpress
 openfire=$openfire
 token=$token
@@ -105,6 +107,7 @@ chmod 700 /home/ubuntu/duckdns/duck2.sh
 # añade un cronjob para comprobar si el servicio nginx en el servidor principal esta activo e iniciar el servicio en este si no lo esta
 
 echo "
+#!/bin/bash
 # Check Nginx status on the remote server
 ssh -o StrictHostKeyChecking=no -i /home/ubuntu/clave.pem ubuntu@$nginx_principal 'sudo systemctl is-active nginx' > remote_status.txt
 
