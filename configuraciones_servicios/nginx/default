@@ -5,6 +5,7 @@ upstream openfireapps{
     server 10.218.2.100:7070;
 }
 upstream wordpress{
+    ip_hash;
     server 10.218.3.100:443;
     server 10.218.3.101:443;
 }
