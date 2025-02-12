@@ -683,8 +683,8 @@ resource "aws_instance" "Wordpress" {
       "sudo -u www-data wp-cli core install --url='http://wordpress218.duckdns.org' --title='Wordpress equipo 4' --admin_user='equipo4' --admin_password='_Admin123' --admin_email='admin@example.com' --path=/var/www/html",
       "sudo -u www-data wp-cli plugin install supportcandy --activate --path='/var/www/html'",
       "sudo -u www-data wp-cli plugin install user-registration --activate --path=/var/www/html",
-      "sudo -u www-data wp-cli plugin install wps-hide-login --activate",
-      "sudo -u www-data wp-cli option update wps_hide_login_url equipo4-admin",
+      "sudo -u www-data wp-cli plugin install wps-hide-login --activate --path='/var/www/html'",
+      "sudo -u www-data wp-cli option update wps_hide_login_url equipo4-admin --path='/var/www/html'",
       "sudo chmod +x wordpress2.sh",
       "sudo ./wordpress2.sh"
     ]
@@ -782,9 +782,9 @@ resource "aws_instance" "Wordpress2" {
       "sudo -u www-data wp-cli core config --dbname=wordpress --dbuser=wordpress --dbpass=_Admin123 --dbhost=${aws_db_instance.MySQL_Wordpress.endpoint} --dbprefix=wp --path=/var/www/html",
       "sudo -u www-data wp-cli core install --url='http://wordpress218.duckdns.org' --title='Wordpress equipo 4' --admin_user='admin' --admin_password='_Admin123' --admin_email='admin@example.com' --path=/var/www/html",
       "sudo -u www-data wp-cli plugin install supportcandy --activate --path='/var/www/html'",
-      "sudo -u www-data wp-cli plugin install user-registration --activate --path=/var/www/html",
-      "sudo -u www-data wp-cli plugin install wps-hide-login --activate",
-      "sudo -u www-data wp-cli option update wps_hide_login_url equipo4-admin",
+      "sudo -u www-data wp-cli plugin install user-registration --activate --path='/var/www/html'",
+      "sudo -u www-data wp-cli plugin install wps-hide-login --activate --path='/var/www/html'",
+      "sudo -u www-data wp-cli option update wps_hide_login_url equipo4-admin --path='/var/www/html'",
       "sudo chmod +x wordpressbackup.sh",
       "sudo ./wordpressbackup.sh"
     ]
