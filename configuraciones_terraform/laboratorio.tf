@@ -999,8 +999,7 @@ resource "aws_instance" "XMPP-database-replica" {
   key_name               = aws_key_pair.ssh_key.key_name
   associate_public_ip_address = false
   private_ip             = "10.218.2.201"
-  
-    provisioner "file" {
+  provisioner "file" {
     source      = ".ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem"  # ubicacion del script local
     destination = "/home/ubuntu/clave.pem"          # destino en el equipo remoto
     connection {
@@ -1013,7 +1012,7 @@ resource "aws_instance" "XMPP-database-replica" {
       bastion_private_key = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
           }
   }
-    provisioner "file" {
+  provisioner "file" {
     source      = "../scripts_servicios/clustersql.sh"  # script local
     destination = "/home/ubuntu/clustersql.sh" # destino
     connection {
@@ -1025,8 +1024,8 @@ resource "aws_instance" "XMPP-database-replica" {
       bastion_user        = "ubuntu"
       bastion_private_key = file("./.ssh/ssh-mensagl-2025-${var.nombre_alumno}.pem")
           }
-  }
-    user_data = base64encode(templatefile("../scripts_servicios/clustersql.sh", {
+}
+  user_data = base64encode(templatefile("../scripts_servicios/clustersql.sh", {
     role           = "secondary"
   }))
   tags = {
