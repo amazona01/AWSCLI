@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -x
 # Variables
 NOMBRE_ALUMNO="alejandroma"
 REGION="us-east-1"
@@ -153,13 +153,13 @@ aws ec2 wait instance-running --instance-ids $NGINX_INSTANCE_ID
 NGINX_PUBLIC_IP=$(aws ec2 describe-instances --instance-ids $NGINX_INSTANCE_ID --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
 
 # Copy scripts and configuration files to the instance
-scp -i $PRIVATE_KEY_PATH ../scripts_servicios/nginx.sh ubuntu@$NGINX_PUBLIC_IP:/home/ubuntu/nginx.sh
-scp -i $PRIVATE_KEY_PATH $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP:/home/ubuntu/clave.pem
-scp -i $PRIVATE_KEY_PATH ../configuraciones_servicios/nginx/default ubuntu@$NGINX_PUBLIC_IP:/home/ubuntu/default
-scp -i $PRIVATE_KEY_PATH ../configuraciones_servicios/nginx/nginx.conf ubuntu@$NGINX_PUBLIC_IP:/home/ubuntu/nginx.conf
+scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ../scripts_servicios/nginx.sh ubuntu@$NGINX_PUBLIC_IP:/home/ubuntu/nginx.sh
+scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP:/home/ubuntu/clave.pem
+scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ../configuraciones_servicios/nginx/default ubuntu@$NGINX_PUBLIC_IP:/home/ubuntu/default
+scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ../configuraciones_servicios/nginx/nginx.conf ubuntu@$NGINX_PUBLIC_IP:/home/ubuntu/nginx.conf
 
 # Execute the script on the instance
-ssh -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP "chmod +x /home/ubuntu/nginx.sh && sudo /home/ubuntu/nginx.sh"
+ssh -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP "chmod +x /home/ubuntu/nginx.sh && sudo /home/ubuntu/nginx.sh"
 
 # ============================
 # Nginx secundario
@@ -175,12 +175,12 @@ aws ec2 wait instance-running --instance-ids $NGINX_FALLBACK_INSTANCE_ID
 NGINX_FALLBACK_PUBLIC_IP=$(aws ec2 describe-instances --instance-ids $NGINX_FALLBACK_INSTANCE_ID --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
 
 # Copy scripts and configuration files to the instance
-scp -i $PRIVATE_KEY_PATH ../scripts_servicios/nginxfallback.sh ubuntu@$NGINX_FALLBACK_PUBLIC_IP:/home/ubuntu/nginxfallback.sh
-scp -i $PRIVATE_KEY_PATH $PRIVATE_KEY_PATH ubuntu@$NGINX_FALLBACK_PUBLIC_IP:/home/ubuntu/clave.pem
-scp -i $PRIVATE_KEY_PATH ../configuraciones_servicios/nginx/default ubuntu@$NGINX_FALLBACK_PUBLIC_IP:/home/ubuntu/default
-scp -i $PRIVATE_KEY_PATH ../configuraciones_servicios/nginx/nginx.conf ubuntu@$NGINX_FALLBACK_PUBLIC_IP:/home/ubuntu/nginx.conf
+scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ../scripts_servicios/nginxfallback.sh ubuntu@$NGINX_FALLBACK_PUBLIC_IP:/home/ubuntu/nginxfallback.sh
+scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no $PRIVATE_KEY_PATH ubuntu@$NGINX_FALLBACK_PUBLIC_IP:/home/ubuntu/clave.pem
+scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ../configuraciones_servicios/nginx/default ubuntu@$NGINX_FALLBACK_PUBLIC_IP:/home/ubuntu/default
+scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ../configuraciones_servicios/nginx/nginx.conf ubuntu@$NGINX_FALLBACK_PUBLIC_IP:/home/ubuntu/nginx.conf
 # Execute the script on the instance
-ssh -i $PRIVATE_KEY_PATH ubuntu@$NGINX_FALLBACK_PUBLIC_IP "chmod +x /home/ubuntu/nginxfallback.sh && sudo /home/ubuntu/nginxfallback.sh"
+ssh -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_FALLBACK_PUBLIC_IP "chmod +x /home/ubuntu/nginxfallback.sh && sudo /home/ubuntu/nginxfallback.sh"
 
 # ============================
 # Instancia RDS
@@ -224,13 +224,13 @@ aws ec2 wait instance-running --instance-ids $WORDPRESS_INSTANCE_ID
 WORDPRESS_PRIVATE_IP=$(aws ec2 describe-instances --instance-ids $WORDPRESS_INSTANCE_ID --query 'Reservations[0].Instances[0].PrivateIpAddress' --output text)
 
 # Copy scripts and configuration files to the instance via bastion host (Nginx)
-scp -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/wordpress.sh ubuntu@$WORDPRESS_PRIVATE_IP:/home/ubuntu/wordpress.sh
-scp -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/wordpress2.sh ubuntu@$WORDPRESS_PRIVATE_IP:/home/ubuntu/wordpress2.sh
-scp -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" $PRIVATE_KEY_PATH ubuntu@$WORDPRESS_PRIVATE_IP:/home/ubuntu/clave.pem
-scp -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ../configuraciones_servicios/wordpress/default-ssl.conf ubuntu@$WORDPRESS_PRIVATE_IP:/home/ubuntu/default-ssl.conf
+scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/wordpress.sh ubuntu@$WORDPRESS_PRIVATE_IP:/home/ubuntu/wordpress.sh
+scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/wordpress2.sh ubuntu@$WORDPRESS_PRIVATE_IP:/home/ubuntu/wordpress2.sh
+scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" $PRIVATE_KEY_PATH ubuntu@$WORDPRESS_PRIVATE_IP:/home/ubuntu/clave.pem
+scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ../configuraciones_servicios/wordpress/default-ssl.conf ubuntu@$WORDPRESS_PRIVATE_IP:/home/ubuntu/default-ssl.conf
 
 # Ejecutar comandos para WordPress
-ssh -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ubuntu@$WORDPRESS_PRIVATE_IP << 'EOF'
+ssh -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ubuntu@$WORDPRESS_PRIVATE_IP << 'EOF'
 cd ~
 sudo chmod +x wordpress.sh
 sudo ./wordpress.sh
@@ -259,13 +259,13 @@ aws ec2 wait instance-running --instance-ids $WORDPRESS_FALLBACK_INSTANCE_ID
 WORDPRESS_FALLBACK_PRIVATE_IP=$(aws ec2 describe-instances --instance-ids $WORDPRESS_FALLBACK_INSTANCE_ID --query 'Reservations[0].Instances[0].PrivateIpAddress' --output text)
 
 # Copy scripts and configuration files to the instance via bastion host (Nginx)
-scp -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/wordpress.sh ubuntu@$WORDPRESS_FALLBACK_PRIVATE_IP:/home/ubuntu/wordpress.sh
-scp -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/wordpressfallback.sh ubuntu@$WORDPRESS_FALLBACK_PRIVATE_IP:/home/ubuntu/wordpressfallback.sh
-scp -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" $PRIVATE_KEY_PATH ubuntu@$WORDPRESS_FALLBACK_PRIVATE_IP:/home/ubuntu/clave.pem
-scp -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ../configuraciones_servicios/wordpress/default-ssl.conf ubuntu@$WORDPRESS_FALLBACK_PRIVATE_IP:/home/ubuntu/default-ssl.conf
+scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/wordpress.sh ubuntu@$WORDPRESS_FALLBACK_PRIVATE_IP:/home/ubuntu/wordpress.sh
+scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/wordpressfallback.sh ubuntu@$WORDPRESS_FALLBACK_PRIVATE_IP:/home/ubuntu/wordpressfallback.sh
+scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" $PRIVATE_KEY_PATH ubuntu@$WORDPRESS_FALLBACK_PRIVATE_IP:/home/ubuntu/clave.pem
+scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ../configuraciones_servicios/wordpress/default-ssl.conf ubuntu@$WORDPRESS_FALLBACK_PRIVATE_IP:/home/ubuntu/default-ssl.conf
 
 # Execute the script on the instance via bastion host (Nginx)
-ssh -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ubuntu@$WORDPRESS_FALLBACK_PRIVATE_IP << 'EOF'
+ssh -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ubuntu@$WORDPRESS_FALLBACK_PRIVATE_IP << 'EOF'
 cd ~
 sudo chmod +x wordpress.sh
 sudo ./wordpress.sh
@@ -294,10 +294,10 @@ aws ec2 wait instance-running --instance-ids $XMPP_INSTANCE_ID
 XMPP_PRIVATE_IP=$(aws ec2 describe-instances --instance-ids $XMPP_INSTANCE_ID --query 'Reservations[0].Instances[0].PrivateIpAddress' --output text)
 
 # Copy scripts and configuration files to the instance via bastion host (Nginx)
-scp -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/openfire.sh ubuntu@$XMPP_PRIVATE_IP:/home/ubuntu/openfire.sh
+scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/openfire.sh ubuntu@$XMPP_PRIVATE_IP:/home/ubuntu/openfire.sh
 
 # Execute the script on the instance via bastion host (Nginx)
-ssh -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ubuntu@$XMPP_PRIVATE_IP "chmod +x /home/ubuntu/openfire.sh && sudo /home/ubuntu/openfire.sh"
+ssh -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ubuntu@$XMPP_PRIVATE_IP "chmod +x /home/ubuntu/openfire.sh && sudo /home/ubuntu/openfire.sh"
 
 # ============================
 # Base de datos maestro openfire
@@ -313,11 +313,11 @@ aws ec2 wait instance-running --instance-ids $XMPP_DB_MASTER_INSTANCE_ID
 XMPP_DB_MASTER_PRIVATE_IP=$(aws ec2 describe-instances --instance-ids $XMPP_DB_MASTER_INSTANCE_ID --query 'Reservations[0].Instances[0].PrivateIpAddress' --output text)
 
 # Copy scripts and configuration files to the instance via bastion host (Nginx)
-scp -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ../configuraciones_servicios/openfire/openfire.sql ubuntu@$XMPP_DB_MASTER_PRIVATE_IP:/home/ubuntu/openfire.sql
-scp -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/clustersql.sh ubuntu@$XMPP_DB_MASTER_PRIVATE_IP:/home/ubuntu/clustersql.sh
+scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ../configuraciones_servicios/openfire/openfire.sql ubuntu@$XMPP_DB_MASTER_PRIVATE_IP:/home/ubuntu/openfire.sql
+scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/clustersql.sh ubuntu@$XMPP_DB_MASTER_PRIVATE_IP:/home/ubuntu/clustersql.sh
 
 # Execute the script on the instance via bastion host (Nginx)
-ssh -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ubuntu@$XMPP_DB_MASTER_PRIVATE_IP << 'EOF'
+ssh -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ubuntu@$XMPP_DB_MASTER_PRIVATE_IP << 'EOF'
 "sed -i 's/role=\"${role}\"/role=\"primary\"/' /home/ubuntu/clustersql.sh"
 chmod +x /home/ubuntu/clustersql.sh && sudo /home/ubuntu/clustersql.sh"
 EOF
@@ -336,10 +336,10 @@ aws ec2 wait instance-running --instance-ids $XMPP_DB_REPLICA_INSTANCE_ID
 XMPP_DB_REPLICA_PRIVATE_IP=$(aws ec2 describe-instances --instance-ids $XMPP_DB_REPLICA_INSTANCE_ID --query 'Reservations[0].Instances[0].PrivateIpAddress' --output text)
 
 # Copy scripts and configuration files to the instance via bastion host (Nginx)
-scp -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/clustersql.sh ubuntu@$XMPP_DB_REPLICA_PRIVATE_IP:/home/ubuntu/clustersql.sh
+scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/clustersql.sh ubuntu@$XMPP_DB_REPLICA_PRIVATE_IP:/home/ubuntu/clustersql.sh
 
 # Execute the script on the instance via bastion host (Nginx)
-ssh -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ubuntu@$XMPP_DB_REPLICA_PRIVATE_IP<< 'EOF'
+ssh -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ubuntu@$XMPP_DB_REPLICA_PRIVATE_IP<< 'EOF'
 "sed -i 's/role=\"${role}\"/role=\"secondary\"/' /home/ubuntu/clustersql.sh"
 chmod +x /home/ubuntu/clustersql.sh && sudo /home/ubuntu/clustersql.sh"
 EOF
@@ -371,9 +371,9 @@ aws ec2 attach-volume --device /dev/sdg --volume-id $VOLUME2_ID --instance-id $N
 NAS_PRIVATE_IP=$(aws ec2 describe-instances --instance-ids $NAS_INSTANCE_ID --query 'Reservations[0].Instances[0].PrivateIpAddress' --output text)
 
 # Copy scripts and configuration files to the instance via bastion host (Nginx)
-scp -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/nas.sh ubuntu@$NAS_PRIVATE_IP:/home/ubuntu/nas.sh
-scp -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" $PRIVATE_KEY_PATH ubuntu@$NAS_PRIVATE_IP:/home/ubuntu/clave.pem
-scp -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/backups.sh ubuntu@$NAS_PRIVATE_IP:/home/ubuntu/backups.sh
+scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/nas.sh ubuntu@$NAS_PRIVATE_IP:/home/ubuntu/nas.sh
+scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" $PRIVATE_KEY_PATH ubuntu@$NAS_PRIVATE_IP:/home/ubuntu/clave.pem
+scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/backups.sh ubuntu@$NAS_PRIVATE_IP:/home/ubuntu/backups.sh
 
 # Execute the script on the instance via bastion host (Nginx)
-ssh -i $PRIVATE_KEY_PATH -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH ubuntu@$NGINX_PUBLIC_IP" ubuntu@$NAS_PRIVATE_IP "chmod +x /home/ubuntu/nas.sh && sudo /home/ubuntu/nas.sh"
+ssh -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ubuntu@$NAS_PRIVATE_IP "chmod +x /home/ubuntu/nas.sh && sudo /home/ubuntu/nas.sh"
