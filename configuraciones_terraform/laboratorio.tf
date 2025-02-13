@@ -404,14 +404,32 @@ resource "aws_security_group" "sg_xmpp" {
   }
     ingress {
     from_port   = 50000
-    to_port     = 55000
+    to_port     = 50010
     protocol    = "udp"
     cidr_blocks = ["0.0.0.0/0"]
   }
   ingress {
-    from_port   = 9999
-    to_port     = 9999
+    from_port   = 5349
+    to_port     = 5349
     protocol    = "udp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port   = 5349
+    to_port     = 5349
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port   = 3478
+    to_port     = 3478
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port   = 3478
+    to_port     = 3478
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
   # Tráfico de salida

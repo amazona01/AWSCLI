@@ -133,3 +133,21 @@ chmod +x /home/ubuntu/fallback.sh
 (crontab -l 2>/dev/null; echo "*/1 * * * * /home/ubuntu/fallback.sh") | crontab -
 sudo systemctl stop nginx
 sudo systemctl disable nginx
+
+
+sudo chown -R www-data:turnserver /etc/letsencrypt/archive/
+sudo chmod -R 770 /etc/letsencrypt/archive/
+sudo echo "syslog
+realm=llamadas.$openfire.duckdns.org
+listening-port=3478
+tls-listening-port=5349
+relay-threads=0
+min-port=50000
+max-port=50010
+no-tcp
+no-tcp-relay
+cert="/etc/letsencrypt/live/$openfire.duckdns.org-0001/fullchain.pem"
+pkey="/etc/letsencrypt/live/$openfire.duckdns.org-0001/privkey.pem"
+" > /etc/turnserver.conf
+sudo systemctl restart coturn  
+sudo systemctl enable coturn  
