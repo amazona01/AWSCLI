@@ -1,5 +1,4 @@
 #!/bin/bash
-set -x
 # Variables
 NOMBRE_ALUMNO="alejandroma"
 REGION="us-east-1"
@@ -206,11 +205,10 @@ aws rds create-db-instance \
     --master-user-password _admin123 \
     --allocated-storage 20 \
     --vpc-security-group-ids $SG_MYSQL_ID \
-    --db-subnet-group-name mydbsubnetgroup \
     --availability-zone ${REGION}a \
     --backup-retention-period 30 \
     --no-multi-az \
-    --publicly-accessible \
+    --publicly-accessible false \
     --storage-type gp2 \
     --tags Key=Name,Value="wordpress-db"
 
@@ -240,7 +238,7 @@ sudo chmod +x wordpress.sh
 sudo ./wordpress.sh
 wait 180
 sudo -u www-data wp-cli core config --dbname=wordpress --dbuser=wordpress --dbpass=_Admin123 --dbhost=${aws_db_instance.MySQL_Wordpress.endpoint} --dbprefix=wp --path=/var/www/html
-sudo -u www-data wp-cli core install --url='http://wordpress218.duckdns.org' --title='Wordpress equipo 4' --admin_user='equipo4' --admin_password='_Admin123' --admin_email='admin@example.com' --path=/var/www/html
+sudo -u www-data wp-cli core install --url='http://wordpress-test218.duckdns.org' --title='Wordpress equipo 4' --admin_user='equipo4' --admin_password='_Admin123' --admin_email='admin@example.com' --path=/var/www/html
 sudo -u www-data wp-cli plugin install supportcandy --activate --path='/var/www/html'
 sudo -u www-data wp-cli plugin install user-registration --activate --path='/var/www/html'
 sudo -u www-data wp-cli plugin install wps-hide-login --activate --path='/var/www/html'
@@ -264,7 +262,7 @@ WORDPRESS_FALLBACK_PRIVATE_IP=$(aws ec2 describe-instances --instance-ids $WORDP
 
 # Copy scripts and configuration files to the instance via bastion host (Nginx)
 scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/wordpress.sh ubuntu@$WORDPRESS_FALLBACK_PRIVATE_IP:/home/ubuntu/wordpress.sh
-scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/wordpressfallback.sh ubuntu@$WORDPRESS_FALLBACK_PRIVATE_IP:/home/ubuntu/wordpressfallback.sh
+scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/wordpressbackup.sh ubuntu@$WORDPRESS_FALLBACK_PRIVATE_IP:/home/ubuntu/wordpressbackup.sh
 scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" $PRIVATE_KEY_PATH ubuntu@$WORDPRESS_FALLBACK_PRIVATE_IP:/home/ubuntu/clave.pem
 scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ../configuraciones_servicios/wordpress/default-ssl.conf ubuntu@$WORDPRESS_FALLBACK_PRIVATE_IP:/home/ubuntu/default-ssl.conf
 
@@ -275,7 +273,7 @@ sudo chmod +x wordpress.sh
 sudo ./wordpress.sh
 wait 180
 sudo -u www-data wp-cli core config --dbname=wordpress --dbuser=wordpress --dbpass=_Admin123 --dbhost=${aws_db_instance.MySQL_Wordpress.endpoint} --dbprefix=wp --path=/var/www/html
-sudo -u www-data wp-cli core install --url='http://wordpress218.duckdns.org' --title='Wordpress equipo 4' --admin_user='admin' --admin_password='_Admin123' --admin_email='admin@example.com' --path=/var/www/html
+sudo -u www-data wp-cli core install --url='http://wordpress-test218.duckdns.org' --title='Wordpress equipo 4' --admin_user='admin' --admin_password='_Admin123' --admin_email='admin@example.com' --path=/var/www/html
 sudo -u www-data wp-cli plugin install supportcandy --activate --path='/var/www/html'
 sudo -u www-data wp-cli plugin install user-registration --activate --path='/var/www/html'
 sudo -u www-data wp-cli plugin install wps-hide-login --activate --path='/var/www/html'
@@ -318,13 +316,10 @@ XMPP_DB_MASTER_PRIVATE_IP=$(aws ec2 describe-instances --instance-ids $XMPP_DB_M
 
 # Copy scripts and configuration files to the instance via bastion host (Nginx)
 scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ../configuraciones_servicios/openfire/openfire.sql ubuntu@$XMPP_DB_MASTER_PRIVATE_IP:/home/ubuntu/openfire.sql
-scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/clustersql.sh ubuntu@$XMPP_DB_MASTER_PRIVATE_IP:/home/ubuntu/clustersql.sh
+scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ../aws-data-user/clustersqlmaster.sh ubuntu@$XMPP_DB_MASTER_PRIVATE_IP:/home/ubuntu/clustersql.sh
 
 # Execute the script on the instance via bastion host (Nginx)
-ssh -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ubuntu@$XMPP_DB_MASTER_PRIVATE_IP << 'EOF'
-"sed -i 's/role=\"${role}\"/role=\"primary\"/' /home/ubuntu/clustersql.sh"
-chmod +x /home/ubuntu/clustersql.sh && sudo /home/ubuntu/clustersql.sh"
-EOF
+ssh -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ubuntu@$XMPP_DB_MASTER_PRIVATE_IP "chmod +x /home/ubuntu/clustersql.sh && sudo /home/ubuntu/clustersql.sh"
 
 # ============================
 # Replica de base de datos de openfire
@@ -340,13 +335,10 @@ sleep 60
 XMPP_DB_REPLICA_PRIVATE_IP=$(aws ec2 describe-instances --instance-ids $XMPP_DB_REPLICA_INSTANCE_ID --query 'Reservations[0].Instances[0].PrivateIpAddress' --output text)
 
 # Copy scripts and configuration files to the instance via bastion host (Nginx)
-scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/clustersql.sh ubuntu@$XMPP_DB_REPLICA_PRIVATE_IP:/home/ubuntu/clustersql.sh
+scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ../aws-data-user/clustersqlslave.sh ubuntu@$XMPP_DB_REPLICA_PRIVATE_IP:/home/ubuntu/clustersql.sh
 
 # Execute the script on the instance via bastion host (Nginx)
-ssh -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ubuntu@$XMPP_DB_REPLICA_PRIVATE_IP<< 'EOF'
-"sed -i 's/role=\"${role}\"/role=\"secondary\"/' /home/ubuntu/clustersql.sh"
-chmod +x /home/ubuntu/clustersql.sh && sudo /home/ubuntu/clustersql.sh"
-EOF
+ssh -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ubuntu@$XMPP_DB_REPLICA_PRIVATE_IP "chmod +x /home/ubuntu/clustersql.sh && sudo /home/ubuntu/clustersql.sh"
 
 
 # ============================
@@ -376,7 +368,6 @@ NAS_PRIVATE_IP=$(aws ec2 describe-instances --instance-ids $NAS_INSTANCE_ID --qu
 
 # Copy scripts and configuration files to the instance via bastion host (Nginx)
 scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/nas.sh ubuntu@$NAS_PRIVATE_IP:/home/ubuntu/nas.sh
-scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" $PRIVATE_KEY_PATH ubuntu@$WORDPRESS_PRIVATE_IP:/home/ubuntu/clave.pem
 scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" $PRIVATE_KEY_PATH ubuntu@$NAS_PRIVATE_IP:/home/ubuntu/clave.pem
 scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/backups.sh ubuntu@$NAS_PRIVATE_IP:/home/ubuntu/backups.sh
 
