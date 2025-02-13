@@ -84,7 +84,7 @@ sudo mv /home/ubuntu/nginx.conf /etc/nginx/nginx.conf
 #Restart Nginx
 sudo systemctl stop nginx
 
-while [ ! -e /etc/letsencrypt/live/wordpress218.duckdns.org ]; do
+while [ ! -e /etc/letsencrypt/live/$wordpress.duckdns.org ]; do
     
     sudo certbot certonly \
         --non-interactive \
@@ -97,7 +97,7 @@ while [ ! -e /etc/letsencrypt/live/wordpress218.duckdns.org ]; do
         -d "$wordpress.duckdns.org"
 
 done
-while [ ! -e /etc/letsencrypt/live/openfire218.duckdns.org ]; do
+while [ ! -e /etc/letsencrypt/live/$openfire.duckdns.org ]; do
     
     sudo certbot certonly \
         --non-interactive \
@@ -110,7 +110,7 @@ while [ ! -e /etc/letsencrypt/live/openfire218.duckdns.org ]; do
         -d "$openfire.duckdns.org"
 
 done
-while [ ! -e /etc/letsencrypt/live/openfire218.duckdns.org-0001 ]; do
+while [ ! -e /etc/letsencrypt/live/$openfire.duckdns.org-0001 ]; do
     
 sudo certbot certonly \
         --non-interactive \
