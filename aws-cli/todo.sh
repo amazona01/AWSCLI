@@ -28,7 +28,8 @@ PEM_KEY=$(aws ec2 create-key-pair \
 echo "${PEM_KEY}" > "${KEY_NAME}.pem"
 chmod 400 "${KEY_NAME}.pem"
 echo "Clave SSH creada y almacenada en: ${KEY_NAME}.pem"
-
+mkdir .ssh/
+mv $KEY_NAME.pem $PRIVATE_KEY_PATH
 # Usar la variable PEM_KEY en otros comandos
 echo "Contenido de la clave SSH almacenada en variable:"
 echo "${PEM_KEY}"
