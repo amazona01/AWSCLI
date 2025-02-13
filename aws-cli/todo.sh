@@ -141,6 +141,7 @@ aws ec2 authorize-security-group-ingress --group-id $SG_XMPP_ID --protocol udp -
 aws ec2 authorize-security-group-ingress --group-id $SG_XMPP_ID --protocol udp --port 9999 --cidr 0.0.0.0/0
 aws ec2 create-tags --resources $SG_XMPP_ID --tags Key=Name,Value="sg_xmpp"
 
+
 # ============================
 # Nginx principal
 # ============================
@@ -149,7 +150,7 @@ aws ec2 create-tags --resources $NGINX_INSTANCE_ID --tags Key=Name,Value="Nginx"
 
 # Wait for the instance to be in running state
 aws ec2 wait instance-running --instance-ids $NGINX_INSTANCE_ID
-
+sleep 60
 # Get the public IP of the instance
 NGINX_PUBLIC_IP=$(aws ec2 describe-instances --instance-ids $NGINX_INSTANCE_ID --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
 
@@ -171,7 +172,7 @@ aws ec2 create-tags --resources $NGINX_FALLBACK_INSTANCE_ID --tags Key=Name,Valu
 # Wait for the instance to be in running state
 aws ec2 wait instance-running --instance-ids $NGINX_INSTANCE_ID
 aws ec2 wait instance-running --instance-ids $NGINX_FALLBACK_INSTANCE_ID
-
+sleep 60
 # Get the public IP of the instance
 NGINX_FALLBACK_PUBLIC_IP=$(aws ec2 describe-instances --instance-ids $NGINX_FALLBACK_INSTANCE_ID --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
 
@@ -182,6 +183,17 @@ scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ../configuraciones_servicio
 scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ../configuraciones_servicios/nginx/nginx.conf ubuntu@$NGINX_FALLBACK_PUBLIC_IP:/home/ubuntu/nginx.conf
 # Execute the script on the instance
 ssh -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_FALLBACK_PUBLIC_IP "chmod +x /home/ubuntu/nginxfallback.sh && sudo /home/ubuntu/nginxfallback.sh"
+
+
+
+
+# ============================
+# Clave KMS
+# ============================
+KMS_KEY_ID=$(aws kms create-key --query 'KeyMetadata.KeyId' --output text)
+aws kms create-alias --alias-name alias/wordpress-key --target-key-id $KMS_KEY_ID
+aws kms enable-key-rotation --key-id $KMS_KEY_ID
+aws kms tag-resource --key-id $KMS_KEY_ID --tags TagKey=Name,TagValue="wordpress-key"
 
 # ============================
 # Instancia RDS
@@ -202,15 +214,6 @@ aws rds create-db-instance \
     --storage-type gp2 \
     --tags Key=Name,Value="wordpress-db"
 
-
-# ============================
-# Clave KMS
-# ============================
-KMS_KEY_ID=$(aws kms create-key --query 'KeyMetadata.KeyId' --output text)
-aws kms create-alias --alias-name alias/wordpress-key --target-key-id $KMS_KEY_ID
-aws kms enable-key-rotation --key-id $KMS_KEY_ID
-aws kms tag-resource --key-id $KMS_KEY_ID --tags TagKey=Name,TagValue="wordpress-key"
-
 # ============================
 # Wordpress maestro
 # ============================
@@ -220,7 +223,7 @@ aws ec2 create-tags --resources $WORDPRESS_INSTANCE_ID --tags Key=Name,Value="WO
 # Wait for the instance to be in running state
 aws ec2 wait instance-running --instance-ids $NGINX_INSTANCE_ID
 aws ec2 wait instance-running --instance-ids $WORDPRESS_INSTANCE_ID
-
+sleep 60
 # Get the private IP of the instance
 WORDPRESS_PRIVATE_IP=$(aws ec2 describe-instances --instance-ids $WORDPRESS_INSTANCE_ID --query 'Reservations[0].Instances[0].PrivateIpAddress' --output text)
 
@@ -255,7 +258,7 @@ aws ec2 create-tags --resources $WORDPRESS_FALLBACK_INSTANCE_ID --tags Key=Name,
 # Wait for the instance to be in running state
 aws ec2 wait instance-running --instance-ids $NGINX_INSTANCE_ID
 aws ec2 wait instance-running --instance-ids $WORDPRESS_FALLBACK_INSTANCE_ID
-
+sleep 60
 # Get the private IP of the instance
 WORDPRESS_FALLBACK_PRIVATE_IP=$(aws ec2 describe-instances --instance-ids $WORDPRESS_FALLBACK_INSTANCE_ID --query 'Reservations[0].Instances[0].PrivateIpAddress' --output text)
 
@@ -290,7 +293,7 @@ aws ec2 create-tags --resources $XMPP_INSTANCE_ID --tags Key=Name,Value="OPENFIR
 # Wait for the instance to be in running state
 aws ec2 wait instance-running --instance-ids $NGINX_INSTANCE_ID
 aws ec2 wait instance-running --instance-ids $XMPP_INSTANCE_ID
-
+sleep 60
 # Get the private IP of the instance
 XMPP_PRIVATE_IP=$(aws ec2 describe-instances --instance-ids $XMPP_INSTANCE_ID --query 'Reservations[0].Instances[0].PrivateIpAddress' --output text)
 
@@ -309,7 +312,7 @@ aws ec2 create-tags --resources $XMPP_DB_MASTER_INSTANCE_ID --tags Key=Name,Valu
 # Wait for the instance to be in running state
 aws ec2 wait instance-running --instance-ids $NGINX_INSTANCE_ID
 aws ec2 wait instance-running --instance-ids $XMPP_DB_MASTER_INSTANCE_ID
-
+sleep 60
 # Get the private IP of the instance
 XMPP_DB_MASTER_PRIVATE_IP=$(aws ec2 describe-instances --instance-ids $XMPP_DB_MASTER_INSTANCE_ID --query 'Reservations[0].Instances[0].PrivateIpAddress' --output text)
 
@@ -332,7 +335,7 @@ aws ec2 create-tags --resources $XMPP_DB_REPLICA_INSTANCE_ID --tags Key=Name,Val
 # Wait for the instance to be in running state
 aws ec2 wait instance-running --instance-ids $NGINX_INSTANCE_ID
 aws ec2 wait instance-running --instance-ids $XMPP_DB_REPLICA_INSTANCE_ID
-
+sleep 60
 # Get the private IP of the instance
 XMPP_DB_REPLICA_PRIVATE_IP=$(aws ec2 describe-instances --instance-ids $XMPP_DB_REPLICA_INSTANCE_ID --query 'Reservations[0].Instances[0].PrivateIpAddress' --output text)
 
@@ -363,7 +366,7 @@ aws ec2 create-tags --resources $NAS_INSTANCE_ID --tags Key=Name,Value="NAS"
 # Wait for the instance to be in running state
 aws ec2 wait instance-running --instance-ids $NGINX_INSTANCE_ID
 aws ec2 wait instance-running --instance-ids $NAS_INSTANCE_ID
-
+sleep 60
 # Adjuntar Volúmenes EBS al servidor NAS
 aws ec2 attach-volume --device /dev/sdf --volume-id $VOLUME1_ID --instance-id $NAS_INSTANCE_ID
 aws ec2 attach-volume --device /dev/sdg --volume-id $VOLUME2_ID --instance-id $NAS_INSTANCE_ID
