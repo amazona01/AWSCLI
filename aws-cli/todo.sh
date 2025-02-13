@@ -26,7 +26,7 @@ PEM_KEY=$(aws ec2 create-key-pair \
 
 # Guardar la clave en un archivo
 echo "${PEM_KEY}" > "${KEY_NAME}.pem"
-chmod 400 "${KEY_NAME}.pem"
+chmod 600 "${KEY_NAME}.pem"
 echo "Clave SSH creada y almacenada en: ${KEY_NAME}.pem"
 mkdir .ssh/
 mv $KEY_NAME.pem $PRIVATE_KEY_PATH
@@ -376,6 +376,7 @@ NAS_PRIVATE_IP=$(aws ec2 describe-instances --instance-ids $NAS_INSTANCE_ID --qu
 
 # Copy scripts and configuration files to the instance via bastion host (Nginx)
 scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/nas.sh ubuntu@$NAS_PRIVATE_IP:/home/ubuntu/nas.sh
+scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" $PRIVATE_KEY_PATH ubuntu@$WORDPRESS_PRIVATE_IP:/home/ubuntu/clave.pem
 scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" $PRIVATE_KEY_PATH ubuntu@$NAS_PRIVATE_IP:/home/ubuntu/clave.pem
 scp -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -i $PRIVATE_KEY_PATH -o StrictHostKeyChecking=no ubuntu@$NGINX_PUBLIC_IP" ../scripts_servicios/backups.sh ubuntu@$NAS_PRIVATE_IP:/home/ubuntu/backups.sh
 
