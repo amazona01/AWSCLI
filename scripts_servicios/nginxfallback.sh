@@ -18,7 +18,7 @@ chmod 600 /home/ubuntu/clave.pem
     cd "/home/ubuntu/duckdns/"
 
     # Instalar paquetes
-    sudo apt update && sudo DEBIAN_FRONTEND=noninteractive apt install nginx-full python3-pip -y
+    sudo apt update && sudo DEBIAN_FRONTEND=noninteractive apt install nginx-full coturn python3-pip -y
     sudo snap install --classic certbot
     sudo ln -s /snap/bin/certbot /usr/bin/certbot
     pip install certbot-dns-duckdns
@@ -135,8 +135,8 @@ sudo systemctl stop nginx
 sudo systemctl disable nginx
 
 
-sudo chown -R www-data:turnserver /etc/letsencrypt/archive/
-sudo chmod -R 770 /etc/letsencrypt/archive/
+sudo chown -R www-data:turnserver /etc/letsencrypt/live/
+sudo chmod -R 770 /etc/letsencrypt/live/
 sudo echo "syslog
 realm=llamadas.$openfire.duckdns.org
 listening-port=3478
