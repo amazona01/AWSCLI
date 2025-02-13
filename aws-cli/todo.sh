@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x # para activar el modo debug y tener mas feedback
 # Variables
 NOMBRE_ALUMNO="alejandroma"
 REGION="us-east-1"
