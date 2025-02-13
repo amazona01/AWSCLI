@@ -360,7 +360,7 @@ VOLUME2_ID=$(aws ec2 create-volume --availability-zone ${REGION}a --size 20 --ta
 # Servidor NAS 
 # ============================
 
-NAS_INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --count 1 --instance-type $INSTANCE_TYPE --key-name $KEY_NAME --subnet-id $SUBNET_PRIVATE1_ID --security-group-ids $SG_NAS_ID --associate-public-ip-address --private-ip-address 10.$RED.2.150 --query 'Instances[0].InstanceId' --output text)
+NAS_INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --count 1 --instance-type $INSTANCE_TYPE --key-name $KEY_NAME --subnet-id $SUBNET_PRIVATE1_ID --security-group-ids $SG_NAS_ID --private-ip-address 10.$RED.2.150 --query 'Instances[0].InstanceId' --output text)
 aws ec2 create-tags --resources $NAS_INSTANCE_ID --tags Key=Name,Value="NAS"
 
 # Wait for the instance to be in running state
