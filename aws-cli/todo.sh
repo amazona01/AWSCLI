@@ -203,6 +203,10 @@ aws kms tag-resource --key-id $KMS_KEY_ID --tags TagKey=Name,TagValue="wordpress
 # Instancia RDS
 # ============================
 # Crear subnet RD
+aws rds create-db-subnet-group \
+    --db-subnet-group-name wp-rds-subnet-group \
+    --db-subnet-group-description "RDS Subnet Group" \
+    --subnet-ids "$SUBNET_PRIVATE1_ID" "$SUBNET_PRIVATE2_ID"
 
 aws rds create-db-instance \
     --db-instance-identifier wordpress-db \
@@ -212,6 +216,7 @@ aws rds create-db-instance \
     --master-user-password _admin123 \
     --allocated-storage 20 \
     --vpc-security-group-ids $SG_MYSQL_ID \
+    --db-subnet-group-name wp-rds-subnet-group \
     --availability-zone ${REGION}a \
     --backup-retention-period 30 \
     --no-multi-az \
