@@ -32,8 +32,7 @@ chmod 600 /home/ubuntu/clave.pem
     sudo snap connect certbot:plugin certbot-dns-duckdns
 
 # Crear scripts de duckdns
-echo "
-#!/bin/bash
+echo "#!/bin/bash
 wordpress=$wordpress
 openfire=$openfire
 token=$token
@@ -53,8 +52,7 @@ fi
 " > /home/ubuntu/duckdns/duck.sh
 chmod 700 /home/ubuntu/duckdns/duck.sh
 
-echo "
-#!/bin/bash
+echo "#!/bin/bash
 wordpress=$wordpress
 openfire=$openfire
 token=$token

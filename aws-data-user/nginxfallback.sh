@@ -18,7 +18,7 @@ chmod 600 /home/ubuntu/clave.pem
     cd "/home/ubuntu/duckdns/"
 
     # Instalar paquetes
-    sudo apt update && sudo DEBIAN_FRONTEND=noninteractive apt install nginx-full coturn python3-pip -y
+    sudo apt update && sudo DEBIAN_FRONTEND=noninteractive apt install nginx-full python3-pip -y
     sudo snap install --classic certbot
     sudo ln -s /snap/bin/certbot /usr/bin/certbot
     pip install certbot-dns-duckdns
@@ -32,8 +32,7 @@ chmod 600 /home/ubuntu/clave.pem
     sudo snap connect certbot:plugin certbot-dns-duckdns
 
 # Crear scripts de duckdns
-echo "
-#!/bin/bash
+echo "#!/bin/bash
 wordpress=$wordpress
 openfire=$openfire
 token=$token
@@ -53,8 +52,7 @@ fi
 " > /home/ubuntu/duckdns/duck.sh
 chmod 700 /home/ubuntu/duckdns/duck.sh
 
-echo "
-#!/bin/bash
+echo "#!/bin/bash
 wordpress=$wordpress
 openfire=$openfire
 token=$token
@@ -68,6 +66,7 @@ local_status=\$(sudo systemctl is-active nginx)
 # Only execute DuckDNS update if Nginx is running locally and not remotely
 if [[ \"\$local_status\" == \"active\" && \"\$remote_status\" != \"active\" ]]; then
         echo url=\"https://www.duckdns.org/update?domains=$openfire&token=$token&ip=\" | curl -k -o /home/ubuntu/duckdns/duck.log -K -
+        echo url=\"https://www.duckdns.org/update?domains=nginxlocal218&token=$token&ip=10.218.1.20\" | curl -k -o /home/ubuntu/duckdns/duck.log -K -
 else
     exit 1
 fi
@@ -134,7 +133,7 @@ chmod +x /home/ubuntu/fallback.sh
 sudo systemctl stop nginx
 sudo systemctl disable nginx
 
-
+sudo DEBIAN_FRONTEND=noninteractive apt install coturn -y 
 sudo chown -R www-data:turnserver /etc/letsencrypt/live/
 sudo chmod -R 770 /etc/letsencrypt/live/
 sudo echo "syslog
@@ -148,6 +147,8 @@ no-tcp
 no-tcp-relay
 cert="/etc/letsencrypt/live/$openfire.duckdns.org-0001/fullchain.pem"
 pkey="/etc/letsencrypt/live/$openfire.duckdns.org-0001/privkey.pem"
+use-auth-secret
+static-auth-secret=_Admin123
 " > /etc/turnserver.conf
 sudo systemctl restart coturn  
 sudo systemctl enable coturn  

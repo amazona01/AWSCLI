@@ -8,3 +8,4 @@ configuraciones_terraform/.terraform/providers/registry.terraform.io/hashicorp/t
 configuraciones_servicios/vpc.tf
 configuraciones_servicios/CrearInstanciaUbuntu.tf.txt
 configuraciones_terraform/laboratoriosinbd.tf
+/entrega paco

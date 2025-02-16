@@ -20,8 +20,7 @@ echo "url=https://www.duckdns.org/update?domains=$openfire&token=$token&ip=" | c
 
 
 # Crear scripts de duckdns
-echo "
-#!/bin/bash
+echo "#!/bin/bash
 wordpress=$wordpress
 openfire=$openfire
 token=$token
@@ -41,8 +40,7 @@ fi
 " > /home/ubuntu/duckdns/duck.sh
 chmod 700 /home/ubuntu/duckdns/duck.sh
 
-echo "
-#!bin/bash
+echo "#!/bin/bash
 wordpress=$wordpress
 openfire=$openfire
 token=$token
